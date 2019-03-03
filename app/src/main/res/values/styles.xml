@@ -1,0 +1,61 @@
+<resources>
+
+    <color name="colorLight">#F5F2ED</color>
+    <color name="colorLight2">#FCCF00</color>
+    <color name="textColorPrimary">#461705</color>
+    <color name="textColor">#792D1D</color>
+    <color name="windowBackground">#FBCDB3</color>
+    <color name="navigationBarColor">#903E16</color>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Customize your theme here. -->
+        <item name="android:colorPrimary">@color/colorPrimary</item>
+        <item name="android:colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="android:colorAccent">@color/colorAccent</item>
+        <item name="android:textColorPrimary">@color/textColorPrimary</item>
+        <item name="android:textColor">@color/textColor</item>
+        <item name="android:windowBackground">@color/colorLight</item>
+        <item name="android:navigationBarColor">@color/navigationBarColor</item>
+
+        <item name="android:itemBackground">@color/colorPrimary</item>
+        <item name="android:actionMenuTextColor">@color/colorLight2</item>
+    </style>
+
+    <style name="HatchTrackThemeStatic" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="android:colorAccent">@color/colorAccent</item>
+        <item name="android:textColorSecondary">@color/colorAccent</item>
+        <item name="android:textColor">@color/textColor</item>
+        <!--item RadioButton or CheckBox color-->
+        <item name="colorControlNormal">@color/colorPrimaryDark</item>
+        <!--item text color-->
+        <item name="textColorAlertDialogListItem">@android:color/white</item>
+        <!--title color-->
+        <item name="android:textColorPrimary">@color/colorPrimaryDark</item>
+        <!--dialog background-->
+        <item name="android:windowBackground">@color/windowBackground</item>
+    </style>
+
+    <style name="AppTheme.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="DialogAnimation">
+        <item name="android:windowEnterAnimation">@anim/open_book</item>
+        <item name="android:windowExitAnimation">@android:anim/slide_out_right</item>
+    </style>
+
+    <style name="HatchTrackDialogThemeAnim" parent="HatchTrackThemeStatic">
+        <item name="android:windowAnimationStyle">@style/DialogAnimation</item>
+    </style>
+
+    <style name="PopupMenuStyleX" parent="Theme.AppCompat.CompactMenu">
+        <item name="android:itemBackground">@color/colorAccent</item>
+    </style>
+
+    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+</resources>

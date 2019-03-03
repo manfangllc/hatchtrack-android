@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/action_settings"
+        android:orderInCategory="100"
+        android:title="@string/action_settings"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_hatches"
+        android:orderInCategory="100"
+        android:title="Add 5 Randomized Hatches"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_peeps"
+        android:orderInCategory="100"
+        android:title="Add 5 Randomized Peeps"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_remove_hatches"
+        android:orderInCategory="100"
+        android:title="Remove Hatches"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_remove_peeps"
+        android:orderInCategory="100"
+        android:title="Remove Peeps"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_dump_db"
+        android:orderInCategory="100"
+        android:title="Dump Database"
+        app:showAsAction="never" />
+</menu>
