@@ -35,7 +35,6 @@ public class CreateHatchFragment extends Fragment implements Braggable, LoaderMa
     private AppBarLayout appBarLayout;
     private ImageView imageView;
     private RecyclerView hatchListView;
-    private CreateHatchListener createListener;
     private LoaderManager loaderManager;
     private boolean needLoaders = true;
     int[] speciesIds = new int[0];
@@ -47,9 +46,8 @@ public class CreateHatchFragment extends Fragment implements Braggable, LoaderMa
         Log.i(TAG, "HatchListFragment(): new");
     }
 
-    public static CreateHatchFragment newInstance(CreateHatchListener listener, CollapsingToolbarLayout ctl, AppBarLayout abl, ImageView iv) {
+    public static CreateHatchFragment newInstance(CollapsingToolbarLayout ctl, AppBarLayout abl, ImageView iv) {
         CreateHatchFragment fragment = new CreateHatchFragment();
-        fragment.createListener = listener;
         fragment.toolbarLayout = ctl;
         fragment.appBarLayout = abl;
         fragment.imageView = iv;

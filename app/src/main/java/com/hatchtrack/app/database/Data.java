@@ -143,7 +143,7 @@ public class Data {
                 Data.removePeepFromHatch(context, hatchId, hatchPeeps.get(i), time);
             }
         }
-        // if the peepIds list has a peep which is not in the hatch add it to the hatch
+        // if the peepIds list has a peep which is not in this hatch add it to this hatch
         for (int i = 0; i < peepIds.size(); i++) {
             if (!hatchPeeps.contains(peepIds.get(i))) {
                 Data.addPeepToHatch(context, hatchId, peepIds.get(i), time);

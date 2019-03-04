@@ -61,6 +61,7 @@ public class HatchListFragment extends Fragment implements Braggable, LoaderMana
     String[] speciesNames = new String[0];
     float[] speciesDays = new float[0];
     Map<Integer, String> speciesPicMap = new HashMap<>();
+    private CreateHatchFragment createHatchFrag;
 
     public HatchListFragment() {
         Log.i(TAG, "HatchListFragment(): new");
@@ -102,26 +103,12 @@ public class HatchListFragment extends Fragment implements Braggable, LoaderMana
             rootView.findViewById(R.id.newHatchButton).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Fragment f = HatchListFragment.this.getFragmentManager().findFragmentByTag("SpeciesDialog");
-                    if(f == null) {
-//                        DialogChooseSpecies d = new DialogCreateHatch();
-//                        Bundle b = new Bundle();
-//                        b.putInt(Globals.KEY_HATCH_ID, HatchFragment.this.hatchId);
-//                        b.putIntArray(Globals.KEY_SPECIES_IDS, HatchFragment.this.speciesIds);
-//                        b.putFloatArray(Globals.KEY_SPECIES_DAYS, HatchFragment.this.speciesDays);
-//                        b.putStringArray(Globals.KEY_SPECIES_NAMES, HatchFragment.this.speciesNames);
-//                        int[] ids = new int[HatchFragment.this.speciesPicMap.size()];
-//                        String[] files = new String[HatchFragment.this.speciesPicMap.size()];
-//                        int i = 0;
-//                        for (Integer id : HatchFragment.this.speciesPicMap.keySet()) {
-//                            ids[i] = id;
-//                            files[i] = HatchFragment.this.speciesPicMap.get(id);
-//                            i++;
-//                        }
-//                        b.putIntArray(Globals.KEY_SPECIES_PICS_IDS, ids);
-//                        b.putStringArray(Globals.KEY_SPECIES_PICS_STRINGS, files);
-//                        d.setArguments(b);
-//                        d.show(HatchFragment.this.getFragmentManager(), "SpeciesDialog");
+                    if(HatchListFragment.this.createHatchFrag == null){
+                        HatchListFragment.this.createHatchFrag = CreateHatchFragment.newInstance(
+                                HatchListFragment.this.toolbarLayout,
+                                HatchListFragment.this.appBarLayout,
+                                HatchListFragment.this.imageView
+                        );
                     }
                 }
             });
