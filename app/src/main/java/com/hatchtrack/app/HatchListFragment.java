@@ -45,6 +45,7 @@ public class HatchListFragment extends Fragment implements Braggable, LoaderMana
 
     public interface HatchClickListener {
         void onHatchClicked(int dbId);
+        void onCreateHatch();
     }
 
     private CollapsingToolbarLayout toolbarLayout;
@@ -104,11 +105,9 @@ public class HatchListFragment extends Fragment implements Braggable, LoaderMana
                 @Override
                 public void onClick(View v) {
                     if(HatchListFragment.this.createHatchFrag == null){
-                        HatchListFragment.this.createHatchFrag = CreateHatchFragment.newInstance(
-                                HatchListFragment.this.toolbarLayout,
-                                HatchListFragment.this.appBarLayout,
-                                HatchListFragment.this.imageView
-                        );
+                        if(HatchListFragment.this.clickListener != null){
+                            HatchListFragment.this.clickListener.onCreateHatch();
+                        }
                     }
                 }
             });
@@ -192,7 +191,7 @@ public class HatchListFragment extends Fragment implements Braggable, LoaderMana
                 break;
             default:
                 // An invalid id was passed in. Things are gonna...
-                break;
+                throw(new NullPointerException("unexpected CursorLoader id"));
         }
         return result;
     }

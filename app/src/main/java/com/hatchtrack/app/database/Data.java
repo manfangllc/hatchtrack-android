@@ -9,6 +9,7 @@ import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class Data {
 
@@ -88,7 +89,7 @@ public class Data {
     }
 
     /**
-     * Writes all the rows of a given cursor to a string delimeted by newlines
+     * Writes all the rows of a given cursor to a string delimited by newlines
      *
      * @param cursor app context
      * @param sb
@@ -152,7 +153,7 @@ public class Data {
     }
 
     /**
-     * Removes one peep from a hatch.
+     * Removes one peep from a hatch
      *
      * @param context the app context
      * @param hatchId
@@ -179,7 +180,7 @@ public class Data {
     }
 
     /**
-     *  Adds one peep to a hatch.
+     *  Adds one peep to a hatch
      *
      * @param context app context
      * @param hatchId
@@ -203,7 +204,7 @@ public class Data {
     }
 
     /**
-     * Sets a hatch's last-modified timestamp.
+     * Sets a hatch's last-modified timestamp
      *
      * @param context app context
      * @param hatchId
@@ -218,7 +219,7 @@ public class Data {
     }
 
     /**
-     * Returns a hatchId given a peepId. (Any peep can only be in one hatch at a time.)
+     * Returns a hatchId given a peepId (Any peep can only be in only one hatch at a time.)
      *
      * @param context app context
      * @param peepId
@@ -243,7 +244,7 @@ public class Data {
     }
 
     /**
-     * Returns a List of all the peeps in a given hatch.
+     * Returns a List of all the peeps in a given hatch
      *
      * @param context app context
      * @param hatchId
@@ -270,7 +271,32 @@ public class Data {
     }
 
     /**
-     * Removes all the peeps from the database.
+     * Creates a new hatch in the hatch table
+     *
+     * @param context the context
+     * @param name hatch name
+     * @param eggCount number of eggs in the hatch
+     * @param species species id
+     * @return true if the hatch was created successfully
+     */
+    public static boolean createHatch(Context context, String name, int eggCount, int species){
+        long now = System.currentTimeMillis();
+        ContentValues cv = new ContentValues();
+        cv.put(HatchTable.NAME, name);
+        cv.put(HatchTable.UUID, UUID.randomUUID().toString());
+        cv.put(HatchTable.SPECIES_ID, species);
+        cv.put(HatchTable.EGG_COUNT, eggCount);
+        cv.put(HatchTable.CHICK_COUNT, 0);
+        cv.put(HatchTable.CREATED, now);
+        cv.put(HatchTable.LAST_SYNCED, 0);
+        cv.put(HatchTable.LAST_MODIFIED, now);
+        cv.put(HatchTable.START, 0);
+        cv.put(HatchTable.END, 0);
+        return(context.getContentResolver().insert(HatchtrackProvider.HATCH_URI, cv) != null);
+    }
+
+    /**
+     * Removes all the peeps from the database
      *
      * @param context app context
      */
@@ -294,8 +320,8 @@ public class Data {
     }
 
     /**
-     * Removes the given peep from the database. Updates last-modified time for the peep's hatch if it exists.
-     *  Updates the HatchPeep table.
+     * Removes the given peep from the database. Updates last-modified time for the peep's hatch if it exists
+     *  Updates the HatchPeep table
      *
      * @param context app context
      * @param peepId
@@ -312,7 +338,7 @@ public class Data {
     }
 
     /**
-     * Removes all the hatches from the database.
+     * Removes all the hatches from the database
      *
      * @param context app context
      */
@@ -336,7 +362,7 @@ public class Data {
     }
 
     /**
-     * Removes the given hatch from the Hatch table. Updates the HatchPeep table.
+     * Removes the given hatch from the Hatch table. Updates the HatchPeep table
      *
      * @param context app context
      * @param hatchId

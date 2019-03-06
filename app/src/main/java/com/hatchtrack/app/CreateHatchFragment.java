@@ -2,6 +2,7 @@ package com.hatchtrack.app;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -13,10 +14,16 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.NumberPicker;
+import android.widget.TextView;
 
 import com.hatchtrack.app.database.HatchtrackProvider;
 import com.hatchtrack.app.database.SpeciesTable;
@@ -24,30 +31,36 @@ import com.hatchtrack.app.database.SpeciesTable;
 import java.util.HashMap;
 import java.util.Map;
 
-public class CreateHatchFragment extends Fragment implements Braggable, LoaderManager.LoaderCallbacks<Cursor> {
+public class CreateHatchFragment extends Fragment implements Braggable, LoaderManager.LoaderCallbacks<Cursor>, NumberPicker.OnValueChangeListener, TextView.OnEditorActionListener, View.OnClickListener, ChooseSpeciesView.ChooseSpeciesListener {
     private static final String TAG = CreateHatchFragment.class.getSimpleName();
 
     public interface CreateHatchListener {
-        void onCreateHatch(int dbId);
+        void onHatchCreated(int species, int eggCount, String name);
     }
 
     private CollapsingToolbarLayout toolbarLayout;
     private AppBarLayout appBarLayout;
     private ImageView imageView;
-    private RecyclerView hatchListView;
+    private CreateHatchFragment.CreateHatchListener createHatchListener;
     private LoaderManager loaderManager;
     private boolean needLoaders = true;
     int[] speciesIds = new int[0];
     String[] speciesNames = new String[0];
     float[] speciesDays = new float[0];
     Map<Integer, String> speciesPicMap = new HashMap<>();
+    Button speciesButton;
+    Button saveButton;
+    private int newSpeciesId;
+    private int newEggCount;
+    private String newHatchName;
 
     public CreateHatchFragment() {
         Log.i(TAG, "HatchListFragment(): new");
     }
 
-    public static CreateHatchFragment newInstance(CollapsingToolbarLayout ctl, AppBarLayout abl, ImageView iv) {
+    public static CreateHatchFragment newInstance(CreateHatchFragment.CreateHatchListener listener, CollapsingToolbarLayout ctl, AppBarLayout abl, ImageView iv) {
         CreateHatchFragment fragment = new CreateHatchFragment();
+        fragment.createHatchListener = listener;
         fragment.toolbarLayout = ctl;
         fragment.appBarLayout = abl;
         fragment.imageView = iv;
@@ -57,6 +70,9 @@ public class CreateHatchFragment extends Fragment implements Braggable, LoaderMa
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        this.newSpeciesId = 0;
+        this.newEggCount = 0;
+        this.newHatchName = null;
         if(this.loaderManager == null) {
             this.loaderManager = this.getActivity().getSupportLoaderManager();
         }
@@ -77,33 +93,22 @@ public class CreateHatchFragment extends Fragment implements Braggable, LoaderMa
         View rootView = inflater.inflate(R.layout.frag_create_hatch, container, false);
         Context context = this.getContext();
         if(context != null) {
-            // new hatch button
-            rootView.findViewById(R.id.newHatchButton).setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Fragment f = CreateHatchFragment.this.getFragmentManager().findFragmentByTag("SpeciesDialog");
-                    if(f == null) {
-//                        DialogChooseSpecies d = new DialogCreateHatch();
-//                        Bundle b = new Bundle();
-//                        b.putInt(Globals.KEY_HATCH_ID, HatchFragment.this.hatchId);
-//                        b.putIntArray(Globals.KEY_SPECIES_IDS, HatchFragment.this.speciesIds);
-//                        b.putFloatArray(Globals.KEY_SPECIES_DAYS, HatchFragment.this.speciesDays);
-//                        b.putStringArray(Globals.KEY_SPECIES_NAMES, HatchFragment.this.speciesNames);
-//                        int[] ids = new int[HatchFragment.this.speciesPicMap.size()];
-//                        String[] files = new String[HatchFragment.this.speciesPicMap.size()];
-//                        int i = 0;
-//                        for (Integer id : HatchFragment.this.speciesPicMap.keySet()) {
-//                            ids[i] = id;
-//                            files[i] = HatchFragment.this.speciesPicMap.get(id);
-//                            i++;
-//                        }
-//                        b.putIntArray(Globals.KEY_SPECIES_PICS_IDS, ids);
-//                        b.putStringArray(Globals.KEY_SPECIES_PICS_STRINGS, files);
-//                        d.setArguments(b);
-//                        d.show(HatchFragment.this.getFragmentManager(), "SpeciesDialog");
-                    }
-                }
-            });
+            // save button
+            this.saveButton = rootView.findViewById(R.id.saveButton);
+            this.saveButton.setVisibility(View.INVISIBLE);
+            this.saveButton.setOnClickListener(this);
+            // species
+            this.speciesButton = rootView.findViewById(R.id.speciesButton);
+            this.speciesButton.setOnClickListener(this);
+            // egg count
+            NumberPicker eggCountPicker = rootView.findViewById(R.id.eggCount);
+            eggCountPicker.setMinValue(0);
+            eggCountPicker.setMaxValue(100);
+            eggCountPicker.setOnValueChangedListener(this);
+            // name
+            EditText nameText = rootView.findViewById(R.id.text);
+//            nameText.setImeOptions(EditorInfo.IME_ACTION_DONE);
+            nameText.setOnEditorActionListener(this);
          }
         return(rootView);
     }
@@ -176,5 +181,67 @@ public class CreateHatchFragment extends Fragment implements Braggable, LoaderMa
                 break;
         }
     }
+    // egg count
+    @Override
+    public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
+        this.newEggCount = newVal;
+    }
 
+    // hatch name
+    @Override
+    public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+        Log.i(TAG, "onEditorAction()");
+        if (actionId == EditorInfo.IME_ACTION_DONE) {
+            this.newHatchName = v.getText().toString();
+            this.checkSave();
+        }
+        return false;
+    }
+
+    // choose species
+    @Override
+    public void onClick(View v) {
+        if(v == this.speciesButton) {
+            Fragment f = CreateHatchFragment.this.getFragmentManager().findFragmentByTag("SpeciesDialog");
+            if (f == null) {
+                DialogChooseSpecies d = new DialogChooseSpecies();
+                d.setOnSpeciesListener(this);
+                Bundle b = new Bundle();
+                b.putIntArray(Globals.KEY_SPECIES_IDS, CreateHatchFragment.this.speciesIds);
+                b.putFloatArray(Globals.KEY_SPECIES_DAYS, CreateHatchFragment.this.speciesDays);
+                b.putStringArray(Globals.KEY_SPECIES_NAMES, CreateHatchFragment.this.speciesNames);
+                int[] ids = new int[CreateHatchFragment.this.speciesPicMap.size()];
+                String[] files = new String[CreateHatchFragment.this.speciesPicMap.size()];
+                int i = 0;
+                for (Integer id : CreateHatchFragment.this.speciesPicMap.keySet()) {
+                    ids[i] = id;
+                    files[i] = CreateHatchFragment.this.speciesPicMap.get(id);
+                    i++;
+                }
+                b.putIntArray(Globals.KEY_SPECIES_PICS_IDS, ids);
+                b.putStringArray(Globals.KEY_SPECIES_PICS_STRINGS, files);
+                d.setArguments(b);
+                d.show(CreateHatchFragment.this.getFragmentManager(), "SpeciesDialog");
+            }
+        }
+        else if(v == this.saveButton){
+            Log.i(TAG, "onClick(): SAVE");
+            if(this.createHatchListener != null){
+                this.createHatchListener.onHatchCreated(this.newSpeciesId, this.newEggCount, this.newHatchName);
+            }
+        }
+    }
+
+    @Override
+    public void onSpeciesChosen(int speciesId) {
+        Util.switchImages(this.getContext(), this.imageView, Uri.parse(this.speciesPicMap.get(speciesId)).getPath());
+        this.newSpeciesId = speciesId;
+        this.checkSave();
+    }
+
+    private void checkSave(){
+        if((this.newSpeciesId > 0) && (this.newHatchName != null)){
+            this.saveButton.setVisibility(View.VISIBLE);
+        }
+    }
 }

@@ -12,6 +12,7 @@ public class HatchTable {
     // Database table
     public static final String TABLE_NAME     = "HatchTable";
     public static final String ID             = "_id";
+    public static final String UUID           = "uuid";
     public static final String NAME           = "Name";
     public static final String SPECIES_ID     = "SpeciesId";
     public static final String EGG_COUNT      = "EggCount";
@@ -27,6 +28,7 @@ public class HatchTable {
             + TABLE_NAME
             + "("
             + ID + " integer primary key autoincrement, "
+            + UUID + " text not null, "
             + NAME + " text not null, "
             + SPECIES_ID + " integer not null, "
             + EGG_COUNT + " integer not null, "

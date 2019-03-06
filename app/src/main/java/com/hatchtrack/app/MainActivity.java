@@ -38,7 +38,9 @@ public class MainActivity
         NavigationView.OnNavigationItemSelectedListener,
         PeepListFragment.PeepClickListener,
         HatchListFragment.HatchClickListener,
-        DialogChoosePeeps.ChoosePeepsDialogListener{
+        DialogChoosePeeps.ChoosePeepsDialogListener,
+        CreateHatchFragment.CreateHatchListener
+{
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
@@ -51,6 +53,7 @@ public class MainActivity
 
     private HatchListFragment hatchListFrag;
     private HatchFragment hatchFrag;
+    private CreateHatchFragment createHatchFrag;
     private PeepListFragment peepListFrag;
     private PeepFragment peepFrag;
     private WebFragment webFrag;
@@ -158,19 +161,7 @@ public class MainActivity
         else if (id == R.id.action_hatches) {
             Random random = new Random(System.currentTimeMillis());
             for(int i = 1; i < 6; i++){
-                long now = System.currentTimeMillis();
-                ContentValues cv = new ContentValues();
-                cv.put(HatchTable.NAME, "Hatch Name " + i);
-                cv.put(HatchTable.SPECIES_ID, random.nextInt(5));
-                cv.put(HatchTable.CREATED, now);
-                int e = random.nextInt(20);
-                cv.put(HatchTable.EGG_COUNT, e);
-                cv.put(HatchTable.CHICK_COUNT, 0);
-                cv.put(HatchTable.START, 0);
-                cv.put(HatchTable.END, 0);
-                cv.put(HatchTable.LAST_SYNCED, 0);
-                cv.put(HatchTable.LAST_MODIFIED, now);
-                this.getContentResolver().insert(HatchtrackProvider.HATCH_URI, cv);
+                Data.createHatch(this, "Hatch Name " + i, random.nextInt(20), random.nextInt(5));
             }
             Log.i(TAG, Data.dumpTable(this, HatchtrackProvider.HATCH_URI));
             return true;
@@ -304,6 +295,32 @@ public class MainActivity
                     .commit();
             this.showBackButton(true);
         }
+    }
+
+    @Override
+    public void onCreateHatch() {
+        Log.i(TAG, "MainActivity.onCreateHatch()");
+        this.createHatchFrag = CreateHatchFragment.newInstance(
+                this,
+                this.toolbarLayout,
+                this.appBarLayout,
+                this.imageView
+        );
+        if(!this.createHatchFrag.isAdded()) {
+            this.createHatchFrag.setExitTransition(new Slide(Gravity.LEFT));
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.fragContainer, this.createHatchFrag)
+                    .addToBackStack(null)
+                    .commit();
+            this.showBackButton(true);
+        }
+    }
+
+    @Override
+    public void onHatchCreated(int species, int eggCount, String hatchName) {
+        Log.i(TAG, "onHatchCreated(): species=" + species + ", eggCount=" + eggCount + ", name=" + hatchName);
+        this.getSupportFragmentManager().popBackStack();
+        Data.createHatch(this, hatchName, eggCount, species);
     }
 
     private void clearBackStack() {
