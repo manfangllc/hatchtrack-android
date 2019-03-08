@@ -1,0 +1,23 @@
+
+8 march 2019:
+
+Settings:
+    default screen
+        hatchtrack default (website)
+        new hatch
+        current hatch / hatch-list
+        colors ?
+
+
+data for day-by-day info
+    could ripoff hatchabatch
+    would like pictures
+
+working:
+    create hatch
+
+to do:
+    fix coordinated scrolling / click-through problems
+    notifications
+    calendar
+
