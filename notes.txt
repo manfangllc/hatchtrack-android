@@ -20,4 +20,3 @@ to do:
     fix coordinated scrolling / click-through problems
     notifications
     calendar
-
