@@ -7,12 +7,16 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -51,6 +55,8 @@ public class HatchListFragment extends Fragment implements Braggable, LoaderMana
     private CollapsingToolbarLayout toolbarLayout;
     private AppBarLayout appBarLayout;
     private ImageView imageView;
+    private FloatingActionButton fab;
+    private CoordinatorLayout mainCoordinator;
     private RecyclerView hatchListView;
     private HatchClickListener clickListener;
     private LoaderManager loaderManager;
@@ -68,12 +74,14 @@ public class HatchListFragment extends Fragment implements Braggable, LoaderMana
         Log.i(TAG, "HatchListFragment(): new");
     }
 
-    public static HatchListFragment newInstance(HatchClickListener listener, CollapsingToolbarLayout ctl, AppBarLayout abl, ImageView iv) {
+    public static HatchListFragment newInstance(HatchClickListener listener, CollapsingToolbarLayout ctl, AppBarLayout abl, ImageView iv, FloatingActionButton fab, CoordinatorLayout mc) {
         HatchListFragment fragment = new HatchListFragment();
         fragment.clickListener = listener;
         fragment.toolbarLayout = ctl;
         fragment.appBarLayout = abl;
         fragment.imageView = iv;
+        fragment.fab = fab;
+        fragment.mainCoordinator = mc;
         return(fragment);
     }
 
@@ -100,17 +108,6 @@ public class HatchListFragment extends Fragment implements Braggable, LoaderMana
         View rootView = inflater.inflate(R.layout.frag_hatch_list, container, false);
         Context context = this.getContext();
         if(context != null) {
-            // new hatch button
-            rootView.findViewById(R.id.newHatchButton).setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if(HatchListFragment.this.createHatchFrag == null){
-                        if(HatchListFragment.this.clickListener != null){
-                            HatchListFragment.this.clickListener.onCreateHatch();
-                        }
-                    }
-                }
-            });
             // the recycler
             this.hatchListView = rootView.findViewById(R.id.hatchListId);
             this.hatchListView.setLayoutManager(new LinearLayoutManager(rootView.getContext()));
@@ -159,6 +156,7 @@ public class HatchListFragment extends Fragment implements Braggable, LoaderMana
             aa.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             spinnerSort.setAdapter(aa);
         }
+        this.setupFab();
         return(rootView);
     }
 
@@ -166,6 +164,7 @@ public class HatchListFragment extends Fragment implements Braggable, LoaderMana
     public void onVisible() {
         this.toolbarLayout.setTitle("Hatches");
         this.imageView.setImageResource(R.drawable.hatch_1);
+        this.setupFab();
     }
 
     @NonNull
@@ -236,5 +235,24 @@ public class HatchListFragment extends Fragment implements Braggable, LoaderMana
         b.putString(Globals.KEY_SELECT, this.selection);
         b.putString(Globals.KEY_SORT, this.sort);
         this.loaderManager.restartLoader(Globals.LOADER_ID_HATCHLIST_HATCHTABLE, b, this.rvAdapter);
+    }
+
+    private void setupFab(){
+        this.fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(HatchListFragment.this.createHatchFrag == null){
+                    if(HatchListFragment.this.clickListener != null){
+                        HatchListFragment.this.clickListener.onCreateHatch();
+                    }
+                }
+            }
+        });
+        this.fab.show();
+        Snackbar.make(
+                this.mainCoordinator,
+                Html.fromHtml("<font color=\"#ffff00\">" + this.getResources().getText(R.string.snackbar_fab_hatchlist) + "</font>"),
+                Snackbar.LENGTH_LONG
+        ).show();
     }
 }

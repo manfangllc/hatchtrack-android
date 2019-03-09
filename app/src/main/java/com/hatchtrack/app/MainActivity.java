@@ -5,6 +5,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -22,7 +24,6 @@ import android.view.View;
 import android.widget.ImageView;
 
 import com.hatchtrack.app.database.Data;
-import com.hatchtrack.app.database.HatchTable;
 import com.hatchtrack.app.database.HatchtrackProvider;
 import com.hatchtrack.app.database.PeepTable;
 import com.hatchtrack.app.database.SpeciesTable;
@@ -49,6 +50,8 @@ public class MainActivity
     private AppBarLayout appBarLayout;
     private ImageView imageView;
     private DrawerLayout drawerLayout;
+    private FloatingActionButton fab;
+    private CoordinatorLayout mainCoordinator;
     private boolean toolBarNavigationListenerIsRegistered;
 
     private HatchListFragment hatchListFrag;
@@ -67,6 +70,8 @@ public class MainActivity
         this.appBarLayout = this.findViewById(R.id.appBarId);
         this.imageView = this.findViewById(R.id.imageView);
         this.drawerLayout = findViewById(R.id.drawerLayout);
+        this.fab = findViewById(R.id.fab);
+        this.mainCoordinator = findViewById(R.id.mainCoordinator);
         // stuff to make nutty collapsible toolbar work
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -103,7 +108,7 @@ public class MainActivity
         }
         // create and display the default fragment
         if(this.hatchListFrag == null){
-            this.hatchListFrag = HatchListFragment.newInstance(this, this.toolbarLayout, this.appBarLayout, this.imageView);
+            this.hatchListFrag = HatchListFragment.newInstance(this, this.toolbarLayout, this.appBarLayout, this.imageView, this.fab, this.mainCoordinator);
         }
         this.clearBackStack();
         getSupportFragmentManager().beginTransaction()
@@ -214,7 +219,7 @@ public class MainActivity
         int id = item.getItemId();
         if (id == R.id.navHatches) {
             if(this.hatchListFrag == null){
-                this.hatchListFrag = HatchListFragment.newInstance(this, this.toolbarLayout, this.appBarLayout, this.imageView);
+                this.hatchListFrag = HatchListFragment.newInstance(this, this.toolbarLayout, this.appBarLayout, this.imageView, this.fab, this.mainCoordinator);
             }
             this.clearBackStack();
             getSupportFragmentManager().beginTransaction()
@@ -222,7 +227,7 @@ public class MainActivity
                     .commit();
         } else if (id == R.id.navPeeps) {
             if(this.peepListFrag == null){
-                this.peepListFrag = PeepListFragment.newInstance(this, this.toolbarLayout, this.appBarLayout, this.imageView);
+                this.peepListFrag = PeepListFragment.newInstance(this, this.toolbarLayout, this.appBarLayout, this.imageView, this.fab, this.mainCoordinator);
             }
             this.clearBackStack();
             getSupportFragmentManager().beginTransaction()
@@ -263,7 +268,7 @@ public class MainActivity
     public void OnPeepClicked(int dbId) {
         Log.i(TAG, "MainActivity.OnPeepClicked(): dbId=" + dbId);
         if(this.peepFrag == null){
-            this.peepFrag = PeepFragment.newInstance(this.toolbarLayout, this.appBarLayout, this.imageView);
+            this.peepFrag = PeepFragment.newInstance(this.toolbarLayout, this.appBarLayout, this.imageView, this.fab, this.mainCoordinator);
         }
         if(!this.peepFrag.isAdded()) {
             Bundle b = new Bundle();
@@ -281,7 +286,7 @@ public class MainActivity
     public void onHatchClicked(int dbId) {
         Log.i(TAG, "MainActivity.onHatchClicked(): dbId=" + dbId);
         if(this.hatchFrag == null){
-            this.hatchFrag = HatchFragment.newInstance(this.toolbarLayout, this.appBarLayout, this.imageView);
+            this.hatchFrag = HatchFragment.newInstance(this.toolbarLayout, this.appBarLayout, this.imageView, this.fab, this.mainCoordinator);
         }
         if(!this.hatchFrag.isAdded()) {
             Bundle b = new Bundle();
@@ -305,7 +310,9 @@ public class MainActivity
                 this,
                 this.toolbarLayout,
                 this.appBarLayout,
-                this.imageView
+                this.imageView,
+                this.fab,
+                this.mainCoordinator
         );
         if(!this.createHatchFrag.isAdded()) {
             Fragment currentFragment = this.getSupportFragmentManager().findFragmentById(R.id.fragContainer);

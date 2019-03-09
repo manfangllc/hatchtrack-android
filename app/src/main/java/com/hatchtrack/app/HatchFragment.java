@@ -8,10 +8,14 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -37,6 +41,8 @@ public class HatchFragment extends Fragment implements LoaderManager.LoaderCallb
     private CollapsingToolbarLayout toolbarLayout;
     private AppBarLayout appBarLayout;
     private ImageView imageView;
+    private FloatingActionButton fab;
+    private CoordinatorLayout mainCoordinator;
     private LoaderManager loaderManager;
     private int hatchId;
     private int speciesId;
@@ -56,11 +62,13 @@ public class HatchFragment extends Fragment implements LoaderManager.LoaderCallb
     public HatchFragment() {
     }
 
-    public static HatchFragment newInstance(CollapsingToolbarLayout ctl, AppBarLayout abl, ImageView iv) {
+    public static HatchFragment newInstance(CollapsingToolbarLayout ctl, AppBarLayout abl, ImageView iv, FloatingActionButton fab, CoordinatorLayout mc) {
         HatchFragment fragment = new HatchFragment();
         fragment.toolbarLayout = ctl;
         fragment.appBarLayout = abl;
         fragment.imageView = iv;
+        fragment.fab = fab;
+        fragment.mainCoordinator = mc;
         return(fragment);
     }
 
@@ -159,7 +167,6 @@ public class HatchFragment extends Fragment implements LoaderManager.LoaderCallb
                 }
             }
         });
-
         rootView.findViewById(R.id.speciesButton).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -189,6 +196,12 @@ public class HatchFragment extends Fragment implements LoaderManager.LoaderCallb
         this.refresh();
         Log.i(TAG, Data.dumpTable(this.context, HatchtrackProvider.HATCH_URI));
         return(rootView);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        this.setupFab();
     }
 
     private void refresh(){
@@ -404,4 +417,19 @@ public class HatchFragment extends Fragment implements LoaderManager.LoaderCallb
             }
         }
     }
+
+    private void setupFab(){
+        this.fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+            }
+        });
+        this.fab.show();
+        Snackbar.make(
+                this.mainCoordinator,
+                Html.fromHtml("<font color=\"#ffff00\">" + this.getResources().getText(R.string.snackbar_fab_hatch) + "</font>"),
+                Snackbar.LENGTH_LONG
+        ).show();
+    }
+
 }
