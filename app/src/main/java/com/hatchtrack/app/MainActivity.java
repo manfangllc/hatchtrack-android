@@ -291,6 +291,7 @@ public class MainActivity
             this.hatchFrag.setExitTransition(new Slide(Gravity.LEFT));
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.fragContainer, this.hatchFrag)
+//                    .replace(R.id.fragContainer, this.hatchFrag)
                     .addToBackStack(null)
                     .commit();
             this.showBackButton(true);
@@ -307,9 +308,12 @@ public class MainActivity
                 this.imageView
         );
         if(!this.createHatchFrag.isAdded()) {
+            Fragment currentFragment = this.getSupportFragmentManager().findFragmentById(R.id.fragContainer);
             this.createHatchFrag.setExitTransition(new Slide(Gravity.LEFT));
             getSupportFragmentManager().beginTransaction()
+//                    .hide(currentFragment)
                     .add(R.id.fragContainer, this.createHatchFrag)
+//                    .replace(R.id.fragContainer, this.createHatchFrag)
                     .addToBackStack(null)
                     .commit();
             this.showBackButton(true);

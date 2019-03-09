@@ -16,6 +16,7 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
@@ -92,6 +93,11 @@ public class CreateHatchFragment extends Fragment implements Braggable, LoaderMa
 
         View rootView = inflater.inflate(R.layout.frag_create_hatch, container, false);
         Context context = this.getContext();
+        // wtf
+//        if(container != null){
+//            container.removeAllViews();
+//        }
+        // setup ui contraptions
         if(context != null) {
             // save button
             this.saveButton = rootView.findViewById(R.id.saveButton);
@@ -107,8 +113,13 @@ public class CreateHatchFragment extends Fragment implements Braggable, LoaderMa
             eggCountPicker.setOnValueChangedListener(this);
             // name
             EditText nameText = rootView.findViewById(R.id.text);
-//            nameText.setImeOptions(EditorInfo.IME_ACTION_DONE);
             nameText.setOnEditorActionListener(this);
+            // wtf
+//            rootView.setOnTouchListener(new View.OnTouchListener() {
+//                public boolean onTouch(View v, MotionEvent event) {
+//                    return true;
+//                }
+//            });
          }
         return(rootView);
     }
