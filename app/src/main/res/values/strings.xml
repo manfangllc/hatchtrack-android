@@ -28,9 +28,10 @@
     <string name="menu_incubators">Incubators</string>
     <string name="menu_peeps">Peeps</string>
 
+    <string name="menu_title_community">COMMUNITY</string>
     <string name="menu_forum">Forum</string>
     <string name="menu_classified">Classifieds</string>
-    <string name="menu_buy">Buy Peeps</string>
+    <string name="menu_buy">Get Peep</string>
 
     <string name="menu_settings">Settings</string>
     <string name="menu_learn">Help</string>
