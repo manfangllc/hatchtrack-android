@@ -156,7 +156,7 @@ public class HatchListFragment extends Fragment implements Braggable, LoaderMana
             aa.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             spinnerSort.setAdapter(aa);
         }
-        this.setupFab();
+//        this.setupFab();
         return(rootView);
     }
 

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory android:title="Preference category">
+
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/cat_info">
+        <Preference
+            android:key="privacyKey"
+            android:summary="@string/pref_privacy_summary"
+            android:title="@string/pref_privacy_title">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="http://www.emirac.net/lifx/chromania_privacy_policy.html" />
+        </Preference>
+    </PreferenceCategory>
+</PreferenceScreen>

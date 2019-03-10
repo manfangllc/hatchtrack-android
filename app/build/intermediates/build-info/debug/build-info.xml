@@ -5,65 +5,44 @@
     build-mode="COLD"
     density="xxhdpi"
     format="10"
-    ir-eligibility="R_CLASS_CHANGE"
+    ir-eligibility="COMPATIBLE"
     plugin-version="3.3.1"
-    timestamp="1552233012866"
+    timestamp="1552251058622"
     token="1135026414853028804"
     verifier="COLD_SWAP_REQUESTED" >
 
     <task
         name="javac"
-        duration="711" />
+        duration="302" />
     <task
         name="instant-run-dex"
         duration="0" />
     <task
         name="instant-run-transform"
-        duration="57" />
+        duration="23" />
     <task
         name="verifier"
-        duration="47" />
+        duration="5" />
 
     <artifact
-        location="C:\Users\Jeff\git\hatchtrack-android\app\build\intermediates\resources\instant-run\debug\resources-debug.apk"
-        type="SPLIT" />
-    <artifact
-        location="C:\Users\Jeff\git\hatchtrack-android\app\build\intermediates\split-apk\debug\slices\slice_2.apk"
-        type="SPLIT" />
-    <artifact
-        location="C:\Users\Jeff\git\hatchtrack-android\app\build\intermediates\split-apk\debug\slices\slice_3.apk"
-        type="SPLIT" />
-    <artifact
-        location="C:\Users\Jeff\git\hatchtrack-android\app\build\intermediates\split-apk\debug\slices\slice_0.apk"
-        type="SPLIT" />
-    <artifact
-        location="C:\Users\Jeff\git\hatchtrack-android\app\build\intermediates\split-apk\debug\slices\slice_4.apk"
-        type="SPLIT" />
-    <artifact
-        location="C:\Users\Jeff\git\hatchtrack-android\app\build\intermediates\split-apk\debug\slices\slice_8.apk"
-        type="SPLIT" />
-    <artifact
-        location="C:\Users\Jeff\git\hatchtrack-android\app\build\intermediates\split-apk\debug\slices\slice_6.apk"
-        type="SPLIT" />
-    <artifact
         location="C:\Users\Jeff\git\hatchtrack-android\app\build\intermediates\split-apk\debug\slices\slice_5.apk"
-        type="SPLIT" />
-    <artifact
-        location="C:\Users\Jeff\git\hatchtrack-android\app\build\intermediates\split-apk\debug\slices\slice_9.apk"
         type="SPLIT" />
 
     <build
         build-mode="FULL"
-        timestamp="1552229054327"
+        timestamp="1552248671710"
         verifier="FULL_BUILD_REQUESTED" >
         <artifact
-            location="C:\Users\Jeff\git\hatchtrack-android\app\build\intermediates\resources\instant-run\debug\resources-debug.apk"
+            location="C:\Users\Jeff\git\hatchtrack-android\app\build\intermediates\split-apk\debug\slices\slice_5.apk"
             type="SPLIT" />
         <artifact
             location="C:\Users\Jeff\git\hatchtrack-android\app\build\intermediates\split-apk\debug\slices\slice_3.apk"
             type="SPLIT" />
         <artifact
             location="C:\Users\Jeff\git\hatchtrack-android\app\build\intermediates\split-apk\debug\slices\slice_9.apk"
+            type="SPLIT" />
+        <artifact
+            location="C:\Users\Jeff\git\hatchtrack-android\app\build\intermediates\resources\instant-run\debug\resources-debug.apk"
             type="SPLIT" />
         <artifact
             location="C:\Users\Jeff\git\hatchtrack-android\app\build\intermediates\split-apk\debug\slices\slice_2.apk"
@@ -73,9 +52,6 @@
             type="SPLIT" />
         <artifact
             location="C:\Users\Jeff\git\hatchtrack-android\app\build\intermediates\split-apk\debug\slices\slice_4.apk"
-            type="SPLIT" />
-        <artifact
-            location="C:\Users\Jeff\git\hatchtrack-android\app\build\intermediates\split-apk\debug\slices\slice_5.apk"
             type="SPLIT" />
         <artifact
             location="C:\Users\Jeff\git\hatchtrack-android\app\build\intermediates\split-apk\debug\slices\slice_8.apk"
@@ -98,35 +74,11 @@
     </build>
     <build
         build-mode="COLD"
-        ir-eligibility="R_CLASS_CHANGE"
-        timestamp="1552233012866"
+        ir-eligibility="COMPATIBLE"
+        timestamp="1552251058622"
         verifier="COLD_SWAP_REQUESTED" >
         <artifact
-            location="C:\Users\Jeff\git\hatchtrack-android\app\build\intermediates\resources\instant-run\debug\resources-debug.apk"
-            type="SPLIT" />
-        <artifact
-            location="C:\Users\Jeff\git\hatchtrack-android\app\build\intermediates\split-apk\debug\slices\slice_2.apk"
-            type="SPLIT" />
-        <artifact
-            location="C:\Users\Jeff\git\hatchtrack-android\app\build\intermediates\split-apk\debug\slices\slice_3.apk"
-            type="SPLIT" />
-        <artifact
-            location="C:\Users\Jeff\git\hatchtrack-android\app\build\intermediates\split-apk\debug\slices\slice_0.apk"
-            type="SPLIT" />
-        <artifact
-            location="C:\Users\Jeff\git\hatchtrack-android\app\build\intermediates\split-apk\debug\slices\slice_4.apk"
-            type="SPLIT" />
-        <artifact
-            location="C:\Users\Jeff\git\hatchtrack-android\app\build\intermediates\split-apk\debug\slices\slice_8.apk"
-            type="SPLIT" />
-        <artifact
-            location="C:\Users\Jeff\git\hatchtrack-android\app\build\intermediates\split-apk\debug\slices\slice_6.apk"
-            type="SPLIT" />
-        <artifact
             location="C:\Users\Jeff\git\hatchtrack-android\app\build\intermediates\split-apk\debug\slices\slice_5.apk"
-            type="SPLIT" />
-        <artifact
-            location="C:\Users\Jeff\git\hatchtrack-android\app\build\intermediates\split-apk\debug\slices\slice_9.apk"
             type="SPLIT" />
     </build>
 

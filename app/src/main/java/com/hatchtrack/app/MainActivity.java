@@ -60,6 +60,7 @@ public class MainActivity
     private PeepListFragment peepListFrag;
     private PeepFragment peepFrag;
     private WebFragment webFrag;
+    private Fragment currentFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,7 +77,22 @@ public class MainActivity
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         // stuff to make drawer work
-        this.drawerToggle = new ActionBarDrawerToggle(this, this.drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        this.drawerToggle = new ActionBarDrawerToggle(this, this.drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close){
+            /** Called when a drawer has settled in a completely closed state. */
+            public void onDrawerClosed(View view) {
+                super.onDrawerClosed(view);
+                // tell the current frag that it's active
+                if(MainActivity.this.currentFragment != null){
+                    if(MainActivity.this.currentFragment instanceof  Braggable){
+                        ((Braggable) MainActivity.this.currentFragment).onVisible();
+                    }
+                }
+            }
+            /** Called when a drawer has settled in a completely open state. */
+            public void onDrawerOpened(View drawerView) {
+                super.onDrawerOpened(drawerView);
+            }
+        };
         this.drawerLayout.addDrawerListener(this.drawerToggle);
         this.drawerToggle.syncState();
         NavigationView navigationView = findViewById(R.id.navView);
@@ -114,6 +130,7 @@ public class MainActivity
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.fragContainer, this.hatchListFrag)
                 .commit();
+        this.currentFragment = this.hatchListFrag;
         // debug: dump the database
         Log.i(TAG, Data.dumpTable(this, HatchtrackProvider.SPECIES_URI));
         Log.i(TAG, Data.dumpTable(this, HatchtrackProvider.HATCH_URI));
@@ -225,6 +242,7 @@ public class MainActivity
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.fragContainer, this.hatchListFrag)
                     .commit();
+            this.currentFragment = this.hatchListFrag;
         } else if (id == R.id.navPeeps) {
             if(this.peepListFrag == null){
                 this.peepListFrag = PeepListFragment.newInstance(this, this.toolbarLayout, this.appBarLayout, this.imageView, this.fab, this.mainCoordinator);
@@ -235,9 +253,9 @@ public class MainActivity
                     .commit();
         } else if (id == R.id.navBuy) {
             if(this.webFrag == null){
-                this.webFrag = WebFragment.newInstance();
+                this.webFrag = WebFragment.newInstance(this.fab, this.mainCoordinator);
             }
-            this.toolbarLayout.setTitle("Buy Peeps");
+            this.toolbarLayout.setTitle(this.getResources().getString(R.string.title_buypeeps));
             this.imageView.setImageResource(R.drawable.logo_black);
             this.appBarLayout.setExpanded(false);
             Bundle b = new Bundle();
@@ -246,6 +264,49 @@ public class MainActivity
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.fragContainer, this.webFrag)
                     .commit();
+            this.currentFragment = this.webFrag;
+        } else if (id == R.id.navClassified) {
+            if(this.webFrag == null){
+                this.webFrag = WebFragment.newInstance(this.fab, this.mainCoordinator);
+            }
+            this.toolbarLayout.setTitle(this.getResources().getString(R.string.title_buypeeps));
+            this.imageView.setImageResource(R.drawable.logo_black);
+            this.appBarLayout.setExpanded(false);
+            Bundle b = new Bundle();
+            b.putString(Globals.KEY_URL, "http://classifieds.hatchtrack.com");
+            this.webFrag.setArguments(b);
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragContainer, this.webFrag)
+                    .commit();
+            this.currentFragment = this.webFrag;
+        } else if (id == R.id.navForum) {
+            if(this.webFrag == null){
+                this.webFrag = WebFragment.newInstance(this.fab, this.mainCoordinator);
+            }
+            this.toolbarLayout.setTitle(this.getResources().getString(R.string.title_buypeeps));
+            this.imageView.setImageResource(R.drawable.logo_black);
+            this.appBarLayout.setExpanded(false);
+            Bundle b = new Bundle();
+            b.putString(Globals.KEY_URL, "http://community.hatchtrack.com");
+            this.webFrag.setArguments(b);
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragContainer, this.webFrag)
+                    .commit();
+            this.currentFragment = this.webFrag;
+        } else if (id == R.id.navHelp) {
+            if(this.webFrag == null){
+                this.webFrag = WebFragment.newInstance(this.fab, this.mainCoordinator);
+            }
+            this.toolbarLayout.setTitle(this.getResources().getString(R.string.title_buypeeps));
+            this.imageView.setImageResource(R.drawable.logo_black);
+            this.appBarLayout.setExpanded(false);
+            Bundle b = new Bundle();
+            b.putString(Globals.KEY_URL, "http://learn.hatchtrack.com");
+            this.webFrag.setArguments(b);
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragContainer, this.webFrag)
+                    .commit();
+            this.currentFragment = this.webFrag;
 //        } else if (id == R.id.navPrivacy) {
 //            if(this.webFrag == null){
 //                this.webFrag = WebFragment.newInstance();
@@ -265,8 +326,8 @@ public class MainActivity
     }
 
     @Override
-    public void OnPeepClicked(int dbId) {
-        Log.i(TAG, "MainActivity.OnPeepClicked(): dbId=" + dbId);
+    public void onPeepClicked(int dbId) {
+        Log.i(TAG, "MainActivity.onPeepClicked(): dbId=" + dbId);
         if(this.peepFrag == null){
             this.peepFrag = PeepFragment.newInstance(this.toolbarLayout, this.appBarLayout, this.imageView, this.fab, this.mainCoordinator);
         }
@@ -278,6 +339,7 @@ public class MainActivity
                     .add(R.id.fragContainer, this.peepFrag)
                     .addToBackStack(null)
                     .commit();
+            this.currentFragment = this.peepFrag;
             this.showBackButton(true);
         }
     }
@@ -299,6 +361,7 @@ public class MainActivity
 //                    .replace(R.id.fragContainer, this.hatchFrag)
                     .addToBackStack(null)
                     .commit();
+            this.currentFragment = this.hatchFrag;
             this.showBackButton(true);
         }
     }
@@ -323,6 +386,7 @@ public class MainActivity
 //                    .replace(R.id.fragContainer, this.createHatchFrag)
                     .addToBackStack(null)
                     .commit();
+            this.currentFragment = this.createHatchFrag;
             this.showBackButton(true);
         }
     }

@@ -17,7 +17,7 @@ public class PeepListFragment extends Fragment implements Braggable {
     private static final String TAG = PeepListFragment.class.getSimpleName();
 
     public interface PeepClickListener {
-        public void OnPeepClicked(int dbId);
+        public void onPeepClicked(int dbId);
     }
 
     private CollapsingToolbarLayout toolbarLayout;

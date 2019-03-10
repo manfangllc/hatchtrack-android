@@ -17,12 +17,25 @@
     <string name="choose_peeps_positive">OK</string>
     <string name="choose_peeps_negative">Cancel</string>
     <string name="choose_species">Choose Species</string>
-    <string name="choose_species_negative">cancel</string>
+    <string name="choose_species_negative">Cancel</string>
+
+    <string name="title_feedback">App Feedback</string>
+    <string name="feedback_email_title">Email</string>
+    <string name="feedback_email_summary">Email your comments or suggestions.</string>
+    <string name="feedback_rate_title">Rate</string>
+    <string name="feedback_rate_summary">If you like it please rate this app!</string>
+
+    <string name="share_title">Share</string>
+    <string name="share_summary">Share this app with a friend.</string>
+    <string name="share_text">Let me recommend this app!</string>
+
+    <string name="cat_info">Info</string>
+    <string name="pref_privacy_title">Privacy Policy</string>
+    <string name="pref_privacy_summary" translatable="false">http://www.emirac.net/lifx/chromania_privacy_policy.html</string>
 
     <string name="title_hatches">Hatches</string>
     <string name="title_createhatch">Create Hatch</string>
     <string name="title_peeps">Peeps</string>
-    <string name="title_feedback">Feedback</string>
 
     <string name="menu_hatches">Hatches</string>
     <string name="menu_incubators">Incubators</string>
@@ -48,6 +61,7 @@
     <string name="hint_hatch_name">my new hatch-name</string>
     <string name="species_hint">choose species</string>
     <string name="egg_count_hint">set egg count</string>
+    <string name="title_buypeeps">Get Peep</string>
 
     <string-array name="selection_choices">
         <item>All</item>
