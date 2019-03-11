@@ -60,6 +60,7 @@ public class MainActivity
     private PeepListFragment peepListFrag;
     private PeepFragment peepFrag;
     private WebFragment webFrag;
+    private FeedbackFragment feedbackFrag;
     private Fragment currentFragment;
 
     @Override
@@ -255,7 +256,7 @@ public class MainActivity
             if(this.webFrag == null){
                 this.webFrag = WebFragment.newInstance(this.fab, this.mainCoordinator);
             }
-            this.toolbarLayout.setTitle(this.getResources().getString(R.string.title_buypeeps));
+            this.toolbarLayout.setTitle(this.getResources().getString(R.string.menu_buy));
             this.imageView.setImageResource(R.drawable.logo_black);
             this.appBarLayout.setExpanded(false);
             Bundle b = new Bundle();
@@ -269,7 +270,7 @@ public class MainActivity
             if(this.webFrag == null){
                 this.webFrag = WebFragment.newInstance(this.fab, this.mainCoordinator);
             }
-            this.toolbarLayout.setTitle(this.getResources().getString(R.string.title_buypeeps));
+            this.toolbarLayout.setTitle(this.getResources().getString(R.string.menu_classified));
             this.imageView.setImageResource(R.drawable.logo_black);
             this.appBarLayout.setExpanded(false);
             Bundle b = new Bundle();
@@ -283,7 +284,7 @@ public class MainActivity
             if(this.webFrag == null){
                 this.webFrag = WebFragment.newInstance(this.fab, this.mainCoordinator);
             }
-            this.toolbarLayout.setTitle(this.getResources().getString(R.string.title_buypeeps));
+            this.toolbarLayout.setTitle(this.getResources().getString(R.string.menu_forum));
             this.imageView.setImageResource(R.drawable.logo_black);
             this.appBarLayout.setExpanded(false);
             Bundle b = new Bundle();
@@ -297,7 +298,7 @@ public class MainActivity
             if(this.webFrag == null){
                 this.webFrag = WebFragment.newInstance(this.fab, this.mainCoordinator);
             }
-            this.toolbarLayout.setTitle(this.getResources().getString(R.string.title_buypeeps));
+            this.toolbarLayout.setTitle(this.getResources().getString(R.string.menu_learn));
             this.imageView.setImageResource(R.drawable.logo_black);
             this.appBarLayout.setExpanded(false);
             Bundle b = new Bundle();
@@ -307,6 +308,18 @@ public class MainActivity
                     .replace(R.id.fragContainer, this.webFrag)
                     .commit();
             this.currentFragment = this.webFrag;
+        } else if (id == R.id.navFeedback) {
+            if(this.feedbackFrag == null){
+                this.feedbackFrag = FeedbackFragment.newInstance(this.toolbarLayout, this.appBarLayout);
+            }
+            this.fab.hide();
+            this.toolbarLayout.setTitle(this.getResources().getString(R.string.menu_feedback));
+            this.imageView.setImageResource(R.drawable.logo_black);
+            this.appBarLayout.setExpanded(true);
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragContainer, this.feedbackFrag)
+                    .commit();
+            this.currentFragment = this.feedbackFrag;
 //        } else if (id == R.id.navPrivacy) {
 //            if(this.webFrag == null){
 //                this.webFrag = WebFragment.newInstance();
