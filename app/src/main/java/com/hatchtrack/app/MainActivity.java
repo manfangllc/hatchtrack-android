@@ -1,6 +1,7 @@
 package com.hatchtrack.app;
 
 import android.content.ContentValues;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
@@ -320,6 +321,9 @@ public class MainActivity
                     .replace(R.id.fragContainer, this.feedbackFrag)
                     .commit();
             this.currentFragment = this.feedbackFrag;
+        } else if (id == R.id.navSettings) {
+            this.startActivity(new Intent(this, SettingsActivity.class));
+
 //        } else if (id == R.id.navPrivacy) {
 //            if(this.webFrag == null){
 //                this.webFrag = WebFragment.newInstance();

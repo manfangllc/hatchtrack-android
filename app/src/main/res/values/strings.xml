@@ -31,7 +31,7 @@
 
     <string name="cat_info">Info</string>
     <string name="pref_privacy_title">Privacy Policy</string>
-    <string name="pref_privacy_summary" translatable="false">http://www.emirac.net/lifx/chromania_privacy_policy.html</string>
+    <string name="pref_privacy_summary">Read legal stuff where we say that we\'re not spying on you.</string>
 
     <string name="title_hatches">Hatches</string>
     <string name="title_createhatch">Create Hatch</string>

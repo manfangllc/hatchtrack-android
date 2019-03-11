@@ -4,6 +4,8 @@ class Globals {
 
     private Globals(){}
 
+    static final boolean DEBUG     = true;
+
     // IDs for CursorLoaders
     // in HatchListFragment
     static final int LOADER_ID_HATCHLIST_HATCHTABLE     = 0x100;

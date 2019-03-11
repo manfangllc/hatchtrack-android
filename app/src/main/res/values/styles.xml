@@ -58,4 +58,18 @@
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
+    <style name="AppThemeSettings" parent="AppTheme">
+        <!-- Customize your theme here. -->
+        <item name="android:colorAccent">@color/colorAccent</item>
+        <item name="android:windowTranslucentStatus">false</item>
+        <item name="android:alertDialogTheme">@style/DialogAnimation</item><!-- this changes title background -->
+        <item name="android:textColor">@color/textColorPrimary</item>
+        <!--
+        <item name="android:textColorSecondary">@color/darkLight</item>
+        <item name="android:navigationBarColor">@color/veryDark</item>
+        <item name="android:activatedBackgroundIndicator">@drawable/button_press_drawable</item>
+        -->
+        <!--        <item name="android:activatedBackgroundIndicator">@drawable/rainbow_selector</item> -->
+    </style>
+
 </resources>
