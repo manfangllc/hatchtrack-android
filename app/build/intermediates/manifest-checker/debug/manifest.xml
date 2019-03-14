@@ -30,6 +30,18 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name="com.hatchtrack.app.SettingsActivity"
+            android:exported="false"
+            android:label="Hatchtrack Settings"
+            android:launchMode="singleTask"
+            android:theme="@style/AppThemeSettings" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.PREFERENCE" />
+            </intent-filter>
+        </activity>
 
         <provider
             android:name="com.hatchtrack.app.database.HatchtrackProvider"

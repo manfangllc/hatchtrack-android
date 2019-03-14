@@ -323,20 +323,6 @@ public class MainActivity
             this.currentFragment = this.feedbackFrag;
         } else if (id == R.id.navSettings) {
             this.startActivity(new Intent(this, SettingsActivity.class));
-
-//        } else if (id == R.id.navPrivacy) {
-//            if(this.webFrag == null){
-//                this.webFrag = WebFragment.newInstance();
-//            }
-//            this.toolbarLayout.setTitle("HatchTrack");
-//            this.imageView.setImageResource(R.drawable.logo_black);
-//            this.appBarLayout.setExpanded(false);
-//            Bundle b = new Bundle();
-//            b.putString(Globals.KEY_URL, "http://policies.google.com/privacy");
-//            this.webFrag.setArguments(b);
-//            getSupportFragmentManager().beginTransaction()
-//                    .replace(R.id.fragContainer, this.webFrag)
-//                    .commit();
         }
         this.drawerLayout.closeDrawer(GravityCompat.START);
         return true;
@@ -412,6 +398,7 @@ public class MainActivity
     public void onHatchCreated(int species, int eggCount, String hatchName) {
         Log.i(TAG, "onHatchCreated(): species=" + species + ", eggCount=" + eggCount + ", name=" + hatchName);
         this.getSupportFragmentManager().popBackStack();
+        this.showBackButton(false);
         Data.createHatch(this, hatchName, eggCount, species);
     }
 
