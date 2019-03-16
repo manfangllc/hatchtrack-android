@@ -257,70 +257,83 @@ public class MainActivity
             if(this.webFrag == null){
                 this.webFrag = WebFragment.newInstance(this.fab, this.mainCoordinator);
             }
-            this.toolbarLayout.setTitle(this.getResources().getString(R.string.menu_buy));
-            this.imageView.setImageResource(R.drawable.logo_black);
-            this.appBarLayout.setExpanded(false);
-            Bundle b = new Bundle();
-            b.putString(Globals.KEY_URL, "http://www.hatchtrack.com");
-            this.webFrag.setArguments(b);
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.fragContainer, this.webFrag)
-                    .commit();
-            this.currentFragment = this.webFrag;
+            Bundle args = new Bundle();
+            args.putString(Globals.KEY_URL, "http://www.hatchtrack.com");
+            this.showScreen(this.webFrag, R.string.menu_buy, R.drawable.logo_black, args, false, false, false);
+//            this.toolbarLayout.setTitle(this.getResources().getString(R.string.menu_buy));
+//            this.imageView.setImageResource(R.drawable.logo_black);
+//            this.appBarLayout.setExpanded(false);
+//            Bundle b = new Bundle();
+//            b.putString(Globals.KEY_URL, "http://www.hatchtrack.com");
+//            this.webFrag.setArguments(b);
+//            getSupportFragmentManager().beginTransaction()
+//                    .replace(R.id.fragContainer, this.webFrag)
+//                    .commit();
+//            this.currentFragment = this.webFrag;
         } else if (id == R.id.navClassified) {
             if(this.webFrag == null){
                 this.webFrag = WebFragment.newInstance(this.fab, this.mainCoordinator);
             }
-            this.toolbarLayout.setTitle(this.getResources().getString(R.string.menu_classified));
-            this.imageView.setImageResource(R.drawable.logo_black);
-            this.appBarLayout.setExpanded(false);
-            Bundle b = new Bundle();
-            b.putString(Globals.KEY_URL, "http://classifieds.hatchtrack.com");
-            this.webFrag.setArguments(b);
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.fragContainer, this.webFrag)
-                    .commit();
-            this.currentFragment = this.webFrag;
+            Bundle args = new Bundle();
+            args.putString(Globals.KEY_URL, "http://classifieds.hatchtrack.com");
+            this.showScreen(this.webFrag, R.string.menu_classified, R.drawable.logo_black, args, false, false, false);
+//            this.toolbarLayout.setTitle(this.getResources().getString(R.string.menu_classified));
+//            this.imageView.setImageResource(R.drawable.logo_black);
+//            this.appBarLayout.setExpanded(false);
+//            Bundle b = new Bundle();
+//            b.putString(Globals.KEY_URL, "http://classifieds.hatchtrack.com");
+//            this.webFrag.setArguments(b);
+//            getSupportFragmentManager().beginTransaction()
+//                    .replace(R.id.fragContainer, this.webFrag)
+//                    .commit();
+//            this.currentFragment = this.webFrag;
         } else if (id == R.id.navForum) {
             if(this.webFrag == null){
                 this.webFrag = WebFragment.newInstance(this.fab, this.mainCoordinator);
             }
-            this.toolbarLayout.setTitle(this.getResources().getString(R.string.menu_forum));
-            this.imageView.setImageResource(R.drawable.logo_black);
-            this.appBarLayout.setExpanded(false);
-            Bundle b = new Bundle();
-            b.putString(Globals.KEY_URL, "http://community.hatchtrack.com");
-            this.webFrag.setArguments(b);
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.fragContainer, this.webFrag)
-                    .commit();
-            this.currentFragment = this.webFrag;
+            Bundle args = new Bundle();
+            args.putString(Globals.KEY_URL, "http://community.hatchtrack.com");
+            this.showScreen(this.webFrag, R.string.menu_forum, R.drawable.logo_black, args, false, false, false);
+//            this.toolbarLayout.setTitle(this.getResources().getString(R.string.menu_forum));
+//            this.imageView.setImageResource(R.drawable.logo_black);
+//            this.appBarLayout.setExpanded(false);
+//            Bundle b = new Bundle();
+//            b.putString(Globals.KEY_URL, "http://community.hatchtrack.com");
+//            this.webFrag.setArguments(b);
+//            getSupportFragmentManager().beginTransaction()
+//                    .replace(R.id.fragContainer, this.webFrag)
+//                    .commit();
+//            this.currentFragment = this.webFrag;
         } else if (id == R.id.navHelp) {
             if(this.webFrag == null){
                 this.webFrag = WebFragment.newInstance(this.fab, this.mainCoordinator);
             }
-            this.toolbarLayout.setTitle(this.getResources().getString(R.string.menu_learn));
-            this.imageView.setImageResource(R.drawable.logo_black);
-            this.appBarLayout.setExpanded(false);
-            Bundle b = new Bundle();
-            b.putString(Globals.KEY_URL, "http://learn.hatchtrack.com");
-            this.webFrag.setArguments(b);
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.fragContainer, this.webFrag)
-                    .commit();
-            this.currentFragment = this.webFrag;
+            Bundle args = new Bundle();
+            args.putString(Globals.KEY_URL, "http://learn.hatchtrack.com");
+            this.showScreen(this.webFrag, R.string.menu_learn, R.drawable.logo_black, args, false, false, false);
+//            this.toolbarLayout.setTitle(this.getResources().getString(R.string.menu_learn));
+//            this.imageView.setImageResource(R.drawable.logo_black);
+//            this.appBarLayout.setExpanded(false);
+//            Bundle b = new Bundle();
+//            b.putString(Globals.KEY_URL, "http://learn.hatchtrack.com");
+//            this.webFrag.setArguments(b);
+//            getSupportFragmentManager().beginTransaction()
+//                    .replace(R.id.fragContainer, this.webFrag)
+//                    .commit();
+//            this.currentFragment = this.webFrag;
         } else if (id == R.id.navFeedback) {
             if(this.feedbackFrag == null){
                 this.feedbackFrag = FeedbackFragment.newInstance(this.toolbarLayout, this.appBarLayout);
             }
+            this.showScreen(this.feedbackFrag, R.string.menu_feedback, R.drawable.logo_black, null, false, false, false);
             this.fab.hide();
-            this.toolbarLayout.setTitle(this.getResources().getString(R.string.menu_feedback));
-            this.imageView.setImageResource(R.drawable.logo_black);
-            this.appBarLayout.setExpanded(true);
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.fragContainer, this.feedbackFrag)
-                    .commit();
-            this.currentFragment = this.feedbackFrag;
+//            this.toolbarLayout.setTitle(this.getResources().getString(R.string.menu_feedback));
+//            this.imageView.setImageResource(R.drawable.logo_black);
+//            this.appBarLayout.setExpanded(true);
+//            getSupportFragmentManager().beginTransaction()
+//                    .replace(R.id.fragContainer, this.feedbackFrag)
+//                    .commit();
+//            this.currentFragment = this.feedbackFrag;
         } else if (id == R.id.navSettings) {
             this.startActivity(new Intent(this, SettingsActivity.class));
         }
@@ -357,11 +370,9 @@ public class MainActivity
             Bundle b = new Bundle();
             b.putInt(Globals.KEY_DBID, dbId);
             this.hatchFrag.setArguments(b);
-//            this.hatchFrag.setEnterTransition(new Fade());
             this.hatchFrag.setExitTransition(new Slide(Gravity.LEFT));
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.fragContainer, this.hatchFrag)
-//                    .replace(R.id.fragContainer, this.hatchFrag)
                     .addToBackStack(null)
                     .commit();
             this.currentFragment = this.hatchFrag;
@@ -381,12 +392,9 @@ public class MainActivity
                 this.mainCoordinator
         );
         if(!this.createHatchFrag.isAdded()) {
-            Fragment currentFragment = this.getSupportFragmentManager().findFragmentById(R.id.fragContainer);
             this.createHatchFrag.setExitTransition(new Slide(Gravity.LEFT));
             getSupportFragmentManager().beginTransaction()
-//                    .hide(currentFragment)
                     .add(R.id.fragContainer, this.createHatchFrag)
-//                    .replace(R.id.fragContainer, this.createHatchFrag)
                     .addToBackStack(null)
                     .commit();
             this.currentFragment = this.createHatchFrag;
@@ -457,5 +465,35 @@ public class MainActivity
     public void onPeepsChosen(int hatchId, List<Integer> peepIds) {
         Log.i(TAG, "onPeepsChosen(): hatchId=" + hatchId);
         Data.setHatchPeeps(this, hatchId, peepIds, System.currentTimeMillis());
+    }
+
+    private void showScreen(Fragment frag, int titleResource, int imageResource, Bundle args, boolean expanded, boolean backstack, boolean backbutton) {
+        if (!frag.isAdded()) {
+            this.toolbarLayout.setTitle(this.getResources().getString(titleResource));
+            this.imageView.setImageResource(imageResource);
+            this.appBarLayout.setExpanded(expanded);
+            if (args != null) {
+                frag.setArguments(args);
+            }
+            if (backstack) {
+                getSupportFragmentManager().beginTransaction()
+                        .add(R.id.fragContainer, frag)
+                        .addToBackStack(null)
+                        .commit();
+            } else {
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.fragContainer, frag)
+                        .commit();
+            }
+            this.currentFragment = frag;
+            this.showBackButton(backbutton);
+        } else {
+            this.toolbarLayout.setTitle(this.getResources().getString(titleResource));
+            this.imageView.setImageResource(imageResource);
+            this.appBarLayout.setExpanded(expanded);
+            if (args != null) {
+                frag.setArguments(args);
+            }
+        }
     }
 }
