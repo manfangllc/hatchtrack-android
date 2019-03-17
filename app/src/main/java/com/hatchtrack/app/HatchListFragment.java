@@ -5,8 +5,6 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.design.widget.AppBarLayout;
-import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -23,7 +21,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.ImageView;
 import android.widget.Spinner;
 
 import com.hatchtrack.app.database.HatchTable;
@@ -52,9 +49,6 @@ public class HatchListFragment extends Fragment implements Braggable, LoaderMana
         void onCreateHatch();
     }
 
-    private CollapsingToolbarLayout toolbarLayout;
-    private AppBarLayout appBarLayout;
-    private ImageView imageView;
     private FloatingActionButton fab;
     private CoordinatorLayout mainCoordinator;
     private RecyclerView hatchListView;
@@ -74,12 +68,9 @@ public class HatchListFragment extends Fragment implements Braggable, LoaderMana
         Log.i(TAG, "HatchListFragment(): new");
     }
 
-    public static HatchListFragment newInstance(HatchClickListener listener, CollapsingToolbarLayout ctl, AppBarLayout abl, ImageView iv, FloatingActionButton fab, CoordinatorLayout mc) {
+    public static HatchListFragment newInstance(HatchClickListener listener, FloatingActionButton fab, CoordinatorLayout mc) {
         HatchListFragment fragment = new HatchListFragment();
         fragment.clickListener = listener;
-        fragment.toolbarLayout = ctl;
-        fragment.appBarLayout = abl;
-        fragment.imageView = iv;
         fragment.fab = fab;
         fragment.mainCoordinator = mc;
         return(fragment);
@@ -101,10 +92,6 @@ public class HatchListFragment extends Fragment implements Braggable, LoaderMana
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        this.toolbarLayout.setTitle("Hatches");
-        this.imageView.setImageResource(R.drawable.hatch_1);
-        this.appBarLayout.setExpanded(true);
-
         View rootView = inflater.inflate(R.layout.frag_hatch_list, container, false);
         Context context = this.getContext();
         if(context != null) {
@@ -156,14 +143,11 @@ public class HatchListFragment extends Fragment implements Braggable, LoaderMana
             aa.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             spinnerSort.setAdapter(aa);
         }
-//        this.setupFab();
         return(rootView);
     }
 
     @Override
     public void onVisible() {
-        this.toolbarLayout.setTitle("Hatches");
-        this.imageView.setImageResource(R.drawable.hatch_1);
         this.setupFab();
     }
 
