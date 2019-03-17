@@ -85,8 +85,8 @@ public class MainActivity
                 super.onDrawerClosed(view);
                 // tell the current frag that it's active
                 if(MainActivity.this.currentFragment != null){
-                    if(MainActivity.this.currentFragment instanceof  Braggable){
-                        ((Braggable) MainActivity.this.currentFragment).onVisible();
+                    if(MainActivity.this.currentFragment instanceof Stackable){
+                        ((Stackable) MainActivity.this.currentFragment).onVisible();
                     }
                 }
             }
@@ -106,9 +106,9 @@ public class MainActivity
             public void onBackStackChanged() {
                 Fragment f = getSupportFragmentManager().findFragmentById(R.id.fragContainer);
                 try {
-                    ((Braggable) f).onVisible();
+                    ((Stackable) f).onVisible();
                 } catch (ClassCastException e){
-                    Log.i(TAG, f.toString() + " fragment doesn't implement Braggable");
+                    Log.i(TAG, f.toString() + " fragment doesn't implement Stackable");
                 }
             }
         });
@@ -126,7 +126,7 @@ public class MainActivity
         }
         // create and display the default fragment
         if(this.hatchListFrag == null){
-            this.hatchListFrag = HatchListFragment.newInstance(this, this.fab, this.mainCoordinator);
+            this.hatchListFrag = HatchListFragment.newInstance(this, this.toolbarLayout, this.appBarLayout, this.imageView, this.fab, this.mainCoordinator);
         }
         this.clearBackStack();
         this.showScreen(this.hatchListFrag, R.string.menu_hatches, R.drawable.hatch_1, null, true, false, false);
@@ -230,13 +230,13 @@ public class MainActivity
         int id = item.getItemId();
         if (id == R.id.navHatches) {
             if(this.hatchListFrag == null){
-                this.hatchListFrag = HatchListFragment.newInstance(this, this.fab, this.mainCoordinator);
+                this.hatchListFrag = HatchListFragment.newInstance(this, this.toolbarLayout, this.appBarLayout, this.imageView, this.fab, this.mainCoordinator);
             }
             this.clearBackStack();
             this.showScreen(this.hatchListFrag, R.string.menu_hatches, R.drawable.hatch_1, null, true, false, false);
         } else if (id == R.id.navPeeps) {
             if(this.peepListFrag == null){
-                this.peepListFrag = PeepListFragment.newInstance(this, this.fab, this.mainCoordinator);
+                this.peepListFrag = PeepListFragment.newInstance(this, this.toolbarLayout, this.appBarLayout, this.imageView, this.fab, this.mainCoordinator);
             }
             this.clearBackStack();
             this.showScreen(this.peepListFrag, R.string.menu_peeps, R.drawable.hatch_1, null, true, false, false);
@@ -306,6 +306,10 @@ public class MainActivity
         if(this.hatchFrag == null){
             this.hatchFrag = HatchFragment.newInstance(this.toolbarLayout, this.appBarLayout, this.imageView, this.fab, this.mainCoordinator);
         }
+//        Bundle args = new Bundle();
+//        args.putInt(Globals.KEY_DBID, dbId);
+//        this.showScreen(this.hatchFrag, R.string.title_hatch_default, R.drawable.hatch_1, args, true, true, true);
+
         if(!this.hatchFrag.isAdded()) {
             Bundle b = new Bundle();
             b.putInt(Globals.KEY_DBID, dbId);

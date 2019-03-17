@@ -34,7 +34,7 @@ import com.hatchtrack.app.database.SpeciesTable;
 import java.util.HashMap;
 import java.util.Map;
 
-public class CreateHatchFragment extends Fragment implements Braggable, LoaderManager.LoaderCallbacks<Cursor>, NumberPicker.OnValueChangeListener, TextView.OnEditorActionListener, View.OnClickListener, ChooseSpeciesView.ChooseSpeciesListener {
+public class CreateHatchFragment extends Fragment implements Stackable, LoaderManager.LoaderCallbacks<Cursor>, NumberPicker.OnValueChangeListener, TextView.OnEditorActionListener, View.OnClickListener, ChooseSpeciesView.ChooseSpeciesListener {
     private static final String TAG = CreateHatchFragment.class.getSimpleName();
 
     public interface CreateHatchListener {

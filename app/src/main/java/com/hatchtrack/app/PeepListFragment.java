@@ -1,6 +1,8 @@
 package com.hatchtrack.app;
 
 import android.os.Bundle;
+import android.support.design.widget.AppBarLayout;
+import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
@@ -9,14 +11,18 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 
-public class PeepListFragment extends Fragment implements Braggable {
+public class PeepListFragment extends Fragment implements Stackable {
     private static final String TAG = PeepListFragment.class.getSimpleName();
 
     public interface PeepClickListener {
         void onPeepClicked(int dbId);
     }
 
+    private CollapsingToolbarLayout toolbarLayout;
+    private AppBarLayout appBarLayout;
+    private ImageView imageView;
     private FloatingActionButton fab;
     private CoordinatorLayout mainCoordinator;
 
@@ -25,9 +31,12 @@ public class PeepListFragment extends Fragment implements Braggable {
     public PeepListFragment() {
     }
 
-    public static PeepListFragment newInstance(PeepClickListener listener, FloatingActionButton fab, CoordinatorLayout mc) {
+    public static PeepListFragment newInstance(PeepClickListener listener, CollapsingToolbarLayout ctl, AppBarLayout abl, ImageView iv, FloatingActionButton fab, CoordinatorLayout mc) {
         PeepListFragment fragment = new PeepListFragment();
         fragment.clickListener = listener;
+        fragment.toolbarLayout = ctl;
+        fragment.appBarLayout = abl;
+        fragment.imageView = iv;
         fragment.fab = fab;
         fragment.mainCoordinator = mc;
         return(fragment);
@@ -45,6 +54,8 @@ public class PeepListFragment extends Fragment implements Braggable {
 
     @Override
     public void onVisible() {
+        this.toolbarLayout.setTitle(this.getResources().getString(R.string.menu_peeps));
+        this.imageView.setImageResource(R.drawable.peep_1);
         this.fab.hide();
     }
 }

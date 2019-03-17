@@ -19,6 +19,8 @@
     <string name="choose_species">Choose Species</string>
     <string name="choose_species_negative">Cancel</string>
 
+    <string name="title_hatch_default">Unnamed Hatch</string>
+
     <string name="title_feedback">App Feedback</string>
     <string name="feedback_email_title">Email</string>
     <string name="feedback_email_summary">Email your comments or suggestions.</string>
