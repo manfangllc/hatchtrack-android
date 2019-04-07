@@ -22,6 +22,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -34,7 +35,7 @@ import com.hatchtrack.app.database.SpeciesTable;
 import java.util.HashMap;
 import java.util.Map;
 
-public class CreateHatchFragment extends Fragment implements Stackable, LoaderManager.LoaderCallbacks<Cursor>, NumberPicker.OnValueChangeListener, TextView.OnEditorActionListener, View.OnClickListener, ChooseSpeciesView.ChooseSpeciesListener {
+public class CreateHatchFragment extends Fragment implements Stackable, LoaderManager.LoaderCallbacks<Cursor>, TextView.OnEditorActionListener, View.OnClickListener, ChooseSpeciesView.ChooseSpeciesListener, DialogEggCount.EggCountListener {
     private static final String TAG = CreateHatchFragment.class.getSimpleName();
 
     public interface CreateHatchListener {
@@ -53,11 +54,18 @@ public class CreateHatchFragment extends Fragment implements Stackable, LoaderMa
     String[] speciesNames = new String[0];
     float[] speciesDays = new float[0];
     Map<Integer, String> speciesPicMap = new HashMap<>();
-    Button speciesButton;
-    Button saveButton;
+//    Button speciesButton;
+//    Button saveButton;
     private int newSpeciesId;
     private int newEggCount;
     private String newHatchName;
+    private View nameContainer;
+    private View speciesContainer;
+    private View countContainer;
+    private TextView countValue;
+    private EditText nameText;
+    private TextView speciesValue;
+    private TextView daysValue;
 
     public CreateHatchFragment() {
         Log.i(TAG, "HatchListFragment(): new");
@@ -101,21 +109,41 @@ public class CreateHatchFragment extends Fragment implements Stackable, LoaderMa
         Context context = this.getContext();
         // setup ui contraptions
         if(context != null) {
-            // save button
-            this.saveButton = rootView.findViewById(R.id.saveButton);
-            this.saveButton.setVisibility(View.INVISIBLE);
-            this.saveButton.setOnClickListener(this);
+//            // save button
+//            this.saveButton = rootView.findViewById(R.id.saveButton);
+//            this.saveButton.setVisibility(View.INVISIBLE);
+//            this.saveButton.setOnClickListener(this);
             // species
-            this.speciesButton = rootView.findViewById(R.id.speciesButton);
-            this.speciesButton.setOnClickListener(this);
+            this.speciesContainer = rootView.findViewById(R.id.speciesContainer);
+            this.speciesContainer.setOnClickListener(this);
             // egg count
-            NumberPicker eggCountPicker = rootView.findViewById(R.id.eggCount);
-            eggCountPicker.setMinValue(0);
-            eggCountPicker.setMaxValue(100);
-            eggCountPicker.setOnValueChangedListener(this);
+//            EggCountPicker eggCountPicker = rootView.findViewById(R.id.eggCount);
+//            eggCountPicker.setMinValue(0);
+//            eggCountPicker.setMaxValue(100);
+//            eggCountPicker.setOnValueChangedListener(this);
+            // other egg count
+            this.countValue = rootView.findViewById(R.id.countValue);
+            this.countContainer = rootView.findViewById(R.id.countContainer);
+            this.countContainer.setOnClickListener(this);
+            this.speciesValue = rootView.findViewById(R.id.speciesNameValue);
+            this.daysValue = rootView.findViewById(R.id.speciesDaysValue);
+//            Button eggCountButton = rootView.findViewById(R.id.setCount);
+//            eggCountButton.setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View v) {
+//                    Fragment f = CreateHatchFragment.this.getFragmentManager().findFragmentByTag("EggCountDialog");
+//                    if(f == null) {
+//                        DialogEggCount d = new DialogEggCount();
+//                        d.setEggCountListener(CreateHatchFragment.this);
+//                        d.show(CreateHatchFragment.this.getFragmentManager(), "EggCountDialog");
+//                    }
+//                }
+//            });
             // name
-            EditText nameText = rootView.findViewById(R.id.text);
-            nameText.setOnEditorActionListener(this);
+            this.nameContainer = rootView.findViewById(R.id.nameContainer);
+            this.nameContainer.setOnClickListener(this);
+            this.nameText = rootView.findViewById(R.id.nameText);
+            this.nameText.setOnEditorActionListener(this);
          }
          this.fab.hide();
          return(rootView);
@@ -191,12 +219,6 @@ public class CreateHatchFragment extends Fragment implements Stackable, LoaderMa
         }
     }
 
-    // egg count
-    @Override
-    public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
-        this.newEggCount = newVal;
-    }
-
     // hatch name
     @Override
     public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
@@ -211,7 +233,8 @@ public class CreateHatchFragment extends Fragment implements Stackable, LoaderMa
     // choose species
     @Override
     public void onClick(View v) {
-        if(v == this.speciesButton) {
+        if(v == this.speciesContainer) {
+            Log.i(TAG, "onClick(): SPECIES");
             Fragment f = CreateHatchFragment.this.getFragmentManager().findFragmentByTag("SpeciesDialog");
             if (f == null) {
                 DialogChooseSpecies d = new DialogChooseSpecies();
@@ -234,24 +257,65 @@ public class CreateHatchFragment extends Fragment implements Stackable, LoaderMa
                 d.show(CreateHatchFragment.this.getFragmentManager(), "SpeciesDialog");
             }
         }
-        else if(v == this.saveButton){
-            Log.i(TAG, "onClick(): SAVE");
-            if(this.createHatchListener != null){
-                this.createHatchListener.onHatchCreated(this.newSpeciesId, this.newEggCount, this.newHatchName);
+        else if(v == this.nameContainer) {
+            Log.i(TAG, "onClick(): NAME");
+//            final InputMethodManager inputMethodManager = (InputMethodManager) this.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+//            inputMethodManager.showSoftInput(this.nameText, InputMethodManager.SHOW_IMPLICIT);
+//            this.nameText.setFocusableInTouchMode(true);
+//            this.nameText.requestFocus();
+            this.nameText.post(new Runnable() {
+                public void run() {
+                    CreateHatchFragment.this.nameText.requestFocus();
+                    InputMethodManager lManager = (InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                    lManager.showSoftInput(CreateHatchFragment.this.nameText, 0);
+                }
+            });
+//            this.nameText.post(new Runnable() {
+//                public void run() {
+//                    CreateHatchFragment.this.nameText.performClick();
+////                    CreateHatchFragment.this.nameText.requestFocusFromTouch();
+////                    InputMethodManager lManager = (InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+////                    lManager.showSoftInput(CreateHatchFragment.this.nameText, 0);
+//                }
+//            });
+
+
+//            this.nameText.performClick();
+        }
+         else if(v == this.countContainer){
+            Log.i(TAG, "onClick(): COUNT");
+            Fragment f = CreateHatchFragment.this.getFragmentManager().findFragmentByTag("EggCountDialog");
+            if(f == null) {
+                DialogEggCount d = new DialogEggCount();
+                d.setEggCountListener(CreateHatchFragment.this);
+                d.setValue(this.newEggCount);
+                d.show(CreateHatchFragment.this.getFragmentManager(), "EggCountDialog");
             }
+//             if(this.createHatchListener != null){
+//                 this.createHatchListener.onHatchCreated(this.newSpeciesId, this.newEggCount, this.newHatchName);
+//             }
         }
     }
 
     @Override
-    public void onSpeciesChosen(int speciesId) {
+    public void onSpeciesChosen(int speciesId, String speciesName, float speciesDays) {
         Util.switchImages(this.getContext(), this.imageView, Uri.parse(this.speciesPicMap.get(speciesId)).getPath());
         this.newSpeciesId = speciesId;
+        this.speciesValue.setText(speciesName);
+        this.daysValue.setText(Float.toString(speciesDays));
         this.checkSave();
+    }
+
+    @Override
+    public void onEggCount(int count) {
+        Log.i(TAG, "onEggCount(" + count + ")");
+        this.countValue.setText(Integer.toString(count));
+        this.newEggCount = count;
     }
 
     private void checkSave(){
         if((this.newSpeciesId > 0) && (this.newHatchName != null)){
-            this.saveButton.setVisibility(View.VISIBLE);
+//            this.saveButton.setVisibility(View.VISIBLE);
             this.fab.show();
             Snackbar.make(
                     this.mainCoordinator,

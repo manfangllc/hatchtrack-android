@@ -72,10 +72,10 @@ public class DialogChooseSpecies extends DialogFragment implements ChooseSpecies
     }
 
     @Override
-    public void onSpeciesChosen(int speciesId) {
+    public void onSpeciesChosen(int speciesId, String speciesName, float speciesDays) {
         Log.i(TAG, "onSpeciesChosen(): hatchId=" + hatchId + ", speciesId=" + speciesId);
         if(this.relayListener != null){
-            this.relayListener.onSpeciesChosen(speciesId);
+            this.relayListener.onSpeciesChosen(speciesId, speciesName, speciesDays);
         }
         if(this.hatchId > 0) {
             Data.setHatchSpecies(this.getContext(), this.hatchId, speciesId);

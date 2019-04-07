@@ -50,6 +50,11 @@
         <item name="android:windowAnimationStyle">@style/DialogAnimation</item>
     </style>
 
+    <style name="HatchTrackDialogThemeAnim.NoMinWidth" parent="HatchTrackDialogThemeAnim">
+        <item name="android:windowMinWidthMinor">0dip</item>
+        <item name="android:windowMinWidthMajor">0dip</item>
+    </style>
+
     <style name="PopupMenuStyleX" parent="Theme.AppCompat.CompactMenu">
         <item name="android:itemBackground">@color/colorAccent</item>
     </style>

@@ -18,6 +18,9 @@
     <string name="choose_peeps_negative">Cancel</string>
     <string name="choose_species">Choose Species</string>
     <string name="choose_species_negative">Cancel</string>
+    <string name="egg_count">Egg Count</string>
+    <string name="egg_count_negative">Cancel</string>
+    <string name="egg_count_positive">OK</string>
 
     <string name="title_hatch_default">Unnamed Hatch</string>
 
@@ -64,6 +67,16 @@
     <string name="species_hint">choose species</string>
     <string name="egg_count_hint">set egg count</string>
     <string name="title_buypeeps">Get Peep</string>
+
+    <string name="hatch_name_label">Hatch Name</string>
+    <string name="hatch_name_intro">Touch to set or change hatch name.</string>
+    <string name="egg_count_label">Egg Count</string>
+    <string name="egg_count_intro">Touch to set or change number of eggs in hatch.</string>
+    <string name="egg_count_label_number">number of eggs:</string>
+    <string name="species_label">Species / Breed</string>
+    <string name="species_intro">Touch to set or change species.</string>
+    <string name="species_label_name">name:</string>
+    <string name="species_label_days">days:</string>
 
     <string-array name="selection_choices">
         <item>All</item>

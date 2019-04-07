@@ -27,7 +27,7 @@
         app:srcCompat="@drawable/hatch_1" />
 
     <TextView
-        android:id="@+id/speciesName"
+        android:id="@+id/speciesIntro"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="20dp"
@@ -45,8 +45,8 @@
         android:layout_marginLeft="10dp"
         android:layout_marginTop="4dp"
         android:text="TextView"
-        app:layout_constraintLeft_toLeftOf="@+id/speciesName"
-        app:layout_constraintTop_toBottomOf="@+id/speciesName" />
+        app:layout_constraintLeft_toLeftOf="@+id/speciesIntro"
+        app:layout_constraintTop_toBottomOf="@+id/speciesIntro" />
 
     <TextView
         android:id="@+id/textView3"
