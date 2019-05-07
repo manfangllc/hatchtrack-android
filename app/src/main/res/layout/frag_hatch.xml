@@ -8,6 +8,10 @@
     android:fitsSystemWindows="false"
     app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
 
     <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
@@ -16,12 +20,16 @@
         tools:ignore="HardcodedText">
 
         <TextView
-            android:id="@+id/textSpecies"
-            android:layout_width="wrap_content"
+            android:id="@+id/labelSpecies"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:hint="@string/species_hint"
-            tools:layout_editor_absoluteX="45dp"
-            tools:layout_editor_absoluteY="37dp" />
+            android:background="@color/colorPrimaryDark"
+            android:text="@string/species_label"
+            android:textColor="@color/colorPrimary"
+            android:textStyle="bold"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/textEggCount"
@@ -32,46 +40,96 @@
             tools:layout_editor_absoluteX="45dp"
             tools:layout_editor_absoluteY="90dp" />
 
-        <Button
-            android:id="@+id/peepButton"
+        <ImageButton
+            android:id="@+id/imageButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Peeps"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <Button
-            android:id="@+id/speciesButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Set Species"
-            app:layout_constraintLeft_toLeftOf="@+id/peepButton"
-            app:layout_constraintTop_toBottomOf="@+id/peepButton" />
-
-
-        <EditText
-            android:id="@+id/text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:editable="false"
-            android:ems="10"
-            android:inputType="none"
-            android:text="Name"
-            app:layout_constraintHorizontal_bias="0.565"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/speciesButton" />
-
-        <ImageView
-            android:id="@+id/imageView2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/text"
-            app:srcCompat="@drawable/eggicon1" />
+            android:scaleType="fitXY"
+            android:src="@drawable/ic_action_edit"
+            app:srcCompat="@drawable/ic_action_edit"
+            tools:layout_editor_absoluteX="132dp"
+            tools:layout_editor_absoluteY="38dp" />
 
     </android.support.constraint.ConstraintLayout>
+
+        <android.support.constraint.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/windowBackground"
+            tools:ignore="HardcodedText">
+
+            <TextView
+                android:id="@+id/labelEggs"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:background="@color/colorPrimaryDark"
+                android:text="@string/eggs_label"
+                android:textColor="@color/colorPrimary"
+                android:textStyle="bold"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        </android.support.constraint.ConstraintLayout>
+
+        <android.support.constraint.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/windowBackground"
+            tools:ignore="HardcodedText">
+
+            <TextView
+                android:id="@+id/labelTime"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:background="@color/colorPrimaryDark"
+                android:text="@string/time_label"
+                android:textColor="@color/colorPrimary"
+                android:textStyle="bold"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <Button
+                android:id="@+id/reminderTest"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Add Reminders"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/labelTime" />
+
+        </android.support.constraint.ConstraintLayout>
+
+        <android.support.constraint.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/windowBackground"
+            tools:ignore="HardcodedText">
+
+            <TextView
+                android:id="@+id/labelPeeps"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:background="@color/colorPrimaryDark"
+                android:text="@string/peeps_label"
+                android:textColor="@color/colorPrimary"
+                android:textStyle="bold"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <Button
+                android:id="@+id/peepButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Peeps"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        </android.support.constraint.ConstraintLayout>
+
+
+    </LinearLayout>
 
 </android.support.v4.widget.NestedScrollView>

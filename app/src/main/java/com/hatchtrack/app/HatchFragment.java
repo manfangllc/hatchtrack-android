@@ -1,9 +1,15 @@
 package com.hatchtrack.app;
 
+import android.Manifest;
+import android.content.ContentValues;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.net.ParseException;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.CalendarContract;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
@@ -13,6 +19,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.text.Html;
@@ -30,8 +37,11 @@ import com.hatchtrack.app.database.HatchtrackProvider;
 import com.hatchtrack.app.database.PeepTable;
 import com.hatchtrack.app.database.SpeciesTable;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TimeZone;
 
 public class HatchFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
     private static final String TAG = HatchFragment.class.getSimpleName();
@@ -167,32 +177,81 @@ public class HatchFragment extends Fragment implements LoaderManager.LoaderCallb
                 }
             }
         });
-        rootView.findViewById(R.id.speciesButton).setOnClickListener(new View.OnClickListener() {
+//        rootView.findViewById(R.id.speciesButton).setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                Fragment f = HatchFragment.this.getFragmentManager().findFragmentByTag("SpeciesDialog");
+//                if(f == null) {
+//                    DialogChooseSpecies d = new DialogChooseSpecies();
+//                    Bundle b = new Bundle();
+//                    b.putInt(Globals.KEY_HATCH_ID, HatchFragment.this.hatchId);
+//                    b.putIntArray(Globals.KEY_SPECIES_IDS, HatchFragment.this.speciesIds);
+//                    b.putFloatArray(Globals.KEY_SPECIES_DAYS, HatchFragment.this.speciesDays);
+//                    b.putStringArray(Globals.KEY_SPECIES_NAMES, HatchFragment.this.speciesNames);
+//                    int[] ids = new int[HatchFragment.this.speciesPicMap.size()];
+//                    String[] files = new String[HatchFragment.this.speciesPicMap.size()];
+//                    int i = 0;
+//                    for (Integer id : HatchFragment.this.speciesPicMap.keySet()) {
+//                        ids[i] = id;
+//                        files[i] = HatchFragment.this.speciesPicMap.get(id);
+//                        i++;
+//                    }
+//                    b.putIntArray(Globals.KEY_SPECIES_PICS_IDS, ids);
+//                    b.putStringArray(Globals.KEY_SPECIES_PICS_STRINGS, files);
+//                    d.setArguments(b);
+//                    d.show(HatchFragment.this.getFragmentManager(), "SpeciesDialog");
+//                }
+//            }
+//        });
+
+        rootView.findViewById(R.id.reminderTest).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Fragment f = HatchFragment.this.getFragmentManager().findFragmentByTag("SpeciesDialog");
-                if(f == null) {
-                    DialogChooseSpecies d = new DialogChooseSpecies();
-                    Bundle b = new Bundle();
-                    b.putInt(Globals.KEY_HATCH_ID, HatchFragment.this.hatchId);
-                    b.putIntArray(Globals.KEY_SPECIES_IDS, HatchFragment.this.speciesIds);
-                    b.putFloatArray(Globals.KEY_SPECIES_DAYS, HatchFragment.this.speciesDays);
-                    b.putStringArray(Globals.KEY_SPECIES_NAMES, HatchFragment.this.speciesNames);
-                    int[] ids = new int[HatchFragment.this.speciesPicMap.size()];
-                    String[] files = new String[HatchFragment.this.speciesPicMap.size()];
-                    int i = 0;
-                    for (Integer id : HatchFragment.this.speciesPicMap.keySet()) {
-                        ids[i] = id;
-                        files[i] = HatchFragment.this.speciesPicMap.get(id);
-                        i++;
-                    }
-                    b.putIntArray(Globals.KEY_SPECIES_PICS_IDS, ids);
-                    b.putStringArray(Globals.KEY_SPECIES_PICS_STRINGS, files);
-                    d.setArguments(b);
-                    d.show(HatchFragment.this.getFragmentManager(), "SpeciesDialog");
+                if(!HatchFragment.this.checkCalendarPermission()){
+                    return;
+                }
+                SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy");
+                String eventTitle = "Hatch Event One"; //This is event title
+                String eventDescription = "this is the description"; //This is event description
+                String eventLocation = "Location: Incubator"; //This is the address for your event location
+
+                long startTimeInMilliseconds = System.currentTimeMillis() + (2 * 24 * 60 * 60 * 1000); // in two days
+                long endTimeInMilliseconds = startTimeInMilliseconds + (60 * 60 * 1000); // one owah after start
+
+                ContentValues values = new ContentValues();
+                values.put(CalendarContract.Events.CALENDAR_ID, 1);
+                values.put(CalendarContract.Events.TITLE, eventTitle);
+                values.put(CalendarContract.Events.DESCRIPTION, eventDescription);
+                values.put(CalendarContract.Events.EVENT_LOCATION, eventLocation);
+                values.put(CalendarContract.Events.DTSTART, startTimeInMilliseconds);
+                values.put(CalendarContract.Events.DTEND, endTimeInMilliseconds);
+                values.put(CalendarContract.Events.HAS_ALARM, 1);
+                TimeZone timeZone = TimeZone.getDefault();
+                values.put(CalendarContract.Events.EVENT_TIMEZONE, timeZone.getID());
+                values.put(CalendarContract.Events.RRULE, "FREQ=DAILY;COUNT=1");
+
+                Uri eventUri;
+                eventUri = Uri.parse("content://com.android.calendar/events");
+                Uri l_uri = context.getContentResolver().insert(eventUri, values);
+                Log.e("EventTest", l_uri.toString());
+
+                try {
+                    Uri remindersUri;
+                    long id = Long.parseLong(l_uri.getLastPathSegment()); //Added event id
+                    ContentValues reminders = new ContentValues();
+                    reminders.put(CalendarContract.Reminders.EVENT_ID, id);
+                    //METHOD_DEFAULT = 0, METHOD_ALERT = 1, METHOD_EMAIL = 2, METHOD_SMS = 3, METHOD_ALARM = 4
+                    reminders.put(CalendarContract.Reminders.METHOD, CalendarContract.Reminders.METHOD_ALERT);
+                    reminders.put(CalendarContract.Reminders.MINUTES, 1);
+                    remindersUri = Uri.parse("content://com.android.calendar/reminders");
+                    Uri uri = context.getContentResolver().insert(remindersUri, reminders);
+                    Log.e("RemindersTest", uri.toString());
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
         });
+
         this.refresh();
         Log.i(TAG, Data.dumpTable(this.context, HatchtrackProvider.HATCH_URI));
         return(rootView);
@@ -432,4 +491,8 @@ public class HatchFragment extends Fragment implements LoaderManager.LoaderCallb
         ).show();
     }
 
+    private boolean checkCalendarPermission(){
+        boolean result = (ContextCompat.checkSelfPermission(this.getActivity(), Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED);
+        return(result);
+    }
 }

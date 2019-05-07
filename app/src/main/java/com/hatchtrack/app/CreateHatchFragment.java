@@ -1,9 +1,14 @@
 package com.hatchtrack.app;
 
+import android.Manifest;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.CheckBoxPreference;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
@@ -13,8 +18,10 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v7.app.AlertDialog;
 import android.text.Html;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -23,10 +30,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.NumberPicker;
 import android.widget.TextView;
 
 import com.hatchtrack.app.database.HatchtrackProvider;
@@ -35,8 +42,9 @@ import com.hatchtrack.app.database.SpeciesTable;
 import java.util.HashMap;
 import java.util.Map;
 
-public class CreateHatchFragment extends Fragment implements Stackable, LoaderManager.LoaderCallbacks<Cursor>, TextView.OnEditorActionListener, View.OnClickListener, ChooseSpeciesView.ChooseSpeciesListener, DialogEggCount.EggCountListener {
+public class CreateHatchFragment extends Fragment implements Stackable, LoaderManager.LoaderCallbacks<Cursor>, TextView.OnEditorActionListener, View.OnClickListener, ChooseSpeciesView.ChooseSpeciesListener, DialogEggCount.EggCountListener, CompoundButton.OnCheckedChangeListener {
     private static final String TAG = CreateHatchFragment.class.getSimpleName();
+
 
     public interface CreateHatchListener {
         void onHatchCreated(int species, int eggCount, String name);
@@ -54,8 +62,6 @@ public class CreateHatchFragment extends Fragment implements Stackable, LoaderMa
     String[] speciesNames = new String[0];
     float[] speciesDays = new float[0];
     Map<Integer, String> speciesPicMap = new HashMap<>();
-//    Button speciesButton;
-//    Button saveButton;
     private int newSpeciesId;
     private int newEggCount;
     private String newHatchName;
@@ -66,6 +72,7 @@ public class CreateHatchFragment extends Fragment implements Stackable, LoaderMa
     private EditText nameText;
     private TextView speciesValue;
     private TextView daysValue;
+    private CheckBox notificationsCheckbox;
 
     public CreateHatchFragment() {
         Log.i(TAG, "HatchListFragment(): new");
@@ -109,41 +116,23 @@ public class CreateHatchFragment extends Fragment implements Stackable, LoaderMa
         Context context = this.getContext();
         // setup ui contraptions
         if(context != null) {
-//            // save button
-//            this.saveButton = rootView.findViewById(R.id.saveButton);
-//            this.saveButton.setVisibility(View.INVISIBLE);
-//            this.saveButton.setOnClickListener(this);
             // species
             this.speciesContainer = rootView.findViewById(R.id.speciesContainer);
             this.speciesContainer.setOnClickListener(this);
             // egg count
-//            EggCountPicker eggCountPicker = rootView.findViewById(R.id.eggCount);
-//            eggCountPicker.setMinValue(0);
-//            eggCountPicker.setMaxValue(100);
-//            eggCountPicker.setOnValueChangedListener(this);
-            // other egg count
             this.countValue = rootView.findViewById(R.id.countValue);
             this.countContainer = rootView.findViewById(R.id.countContainer);
             this.countContainer.setOnClickListener(this);
             this.speciesValue = rootView.findViewById(R.id.speciesNameValue);
             this.daysValue = rootView.findViewById(R.id.speciesDaysValue);
-//            Button eggCountButton = rootView.findViewById(R.id.setCount);
-//            eggCountButton.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View v) {
-//                    Fragment f = CreateHatchFragment.this.getFragmentManager().findFragmentByTag("EggCountDialog");
-//                    if(f == null) {
-//                        DialogEggCount d = new DialogEggCount();
-//                        d.setEggCountListener(CreateHatchFragment.this);
-//                        d.show(CreateHatchFragment.this.getFragmentManager(), "EggCountDialog");
-//                    }
-//                }
-//            });
             // name
             this.nameContainer = rootView.findViewById(R.id.nameContainer);
             this.nameContainer.setOnClickListener(this);
             this.nameText = rootView.findViewById(R.id.nameText);
             this.nameText.setOnEditorActionListener(this);
+            // notifications
+            this.notificationsCheckbox = rootView.findViewById(R.id.notificationsCheckbox);
+            this.notificationsCheckbox.setOnCheckedChangeListener(this);
          }
          this.fab.hide();
          return(rootView);
@@ -259,10 +248,6 @@ public class CreateHatchFragment extends Fragment implements Stackable, LoaderMa
         }
         else if(v == this.nameContainer) {
             Log.i(TAG, "onClick(): NAME");
-//            final InputMethodManager inputMethodManager = (InputMethodManager) this.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-//            inputMethodManager.showSoftInput(this.nameText, InputMethodManager.SHOW_IMPLICIT);
-//            this.nameText.setFocusableInTouchMode(true);
-//            this.nameText.requestFocus();
             this.nameText.post(new Runnable() {
                 public void run() {
                     CreateHatchFragment.this.nameText.requestFocus();
@@ -270,17 +255,6 @@ public class CreateHatchFragment extends Fragment implements Stackable, LoaderMa
                     lManager.showSoftInput(CreateHatchFragment.this.nameText, 0);
                 }
             });
-//            this.nameText.post(new Runnable() {
-//                public void run() {
-//                    CreateHatchFragment.this.nameText.performClick();
-////                    CreateHatchFragment.this.nameText.requestFocusFromTouch();
-////                    InputMethodManager lManager = (InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-////                    lManager.showSoftInput(CreateHatchFragment.this.nameText, 0);
-//                }
-//            });
-
-
-//            this.nameText.performClick();
         }
          else if(v == this.countContainer){
             Log.i(TAG, "onClick(): COUNT");
@@ -291,9 +265,26 @@ public class CreateHatchFragment extends Fragment implements Stackable, LoaderMa
                 d.setValue(this.newEggCount);
                 d.show(CreateHatchFragment.this.getFragmentManager(), "EggCountDialog");
             }
-//             if(this.createHatchListener != null){
-//                 this.createHatchListener.onHatchCreated(this.newSpeciesId, this.newEggCount, this.newHatchName);
-//             }
+        }
+    }
+
+    @Override
+    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+        if(this.getActivity() != null){
+            if(buttonView == this.notificationsCheckbox){
+                if(isChecked){
+                    if(ContextCompat.checkSelfPermission(this.getActivity(), Manifest.permission.WRITE_CALENDAR) != PackageManager.PERMISSION_GRANTED){
+                        // we don't have have permission so make sure checkbox stays off
+                        this.notificationsCheckbox.setChecked(false);
+                        // try to get permission
+                        requestPermissions(new String[]{Manifest.permission.READ_CALENDAR, Manifest.permission.WRITE_CALENDAR}, Globals.PERMISSION_WRITE_CALENDAR);
+                    } else {
+                        // we have permission so show the notification options
+                    }
+                } else {
+                    // hide options and remove notifications
+                }
+            }
         }
     }
 
@@ -313,9 +304,37 @@ public class CreateHatchFragment extends Fragment implements Stackable, LoaderMa
         this.newEggCount = count;
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch(requestCode){
+            case Globals.PERMISSION_WRITE_CALENDAR:
+                if ((grantResults.length > 0 ) && (grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+                    // permission was granted, yay!
+                    // turn notifications on
+                    this.notificationsCheckbox.setChecked(true);
+                } else {
+                    // permission denied...eediots!
+                    this.notificationsCheckbox.setChecked(false);
+                    // 'splain why we need it
+                    (new AlertDialog.Builder(this.getActivity(), R.style.HatchTrackDialogThemeAnim))
+                            .setTitle(this.getActivity().getResources().getString(R.string.calendar_permission_title))
+                            .setMessage(this.getActivity().getResources().getString(R.string.calendar_permission_text))
+                            .setPositiveButton(this.getActivity().getResources().getString(R.string.neutral), new DialogInterface.OnClickListener(){
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.dismiss();
+                                }
+                            })
+                            .create()
+                            .show();
+                }
+                break;
+        }
+    }
+
     private void checkSave(){
         if((this.newSpeciesId > 0) && (this.newHatchName != null)){
-//            this.saveButton.setVisibility(View.VISIBLE);
             this.fab.show();
             Snackbar.make(
                     this.mainCoordinator,

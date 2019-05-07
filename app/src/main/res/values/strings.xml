@@ -22,6 +22,8 @@
     <string name="egg_count_negative">Cancel</string>
     <string name="egg_count_positive">OK</string>
 
+    <string name="neutral">Dismiss</string>
+
     <string name="title_hatch_default">Unnamed Hatch</string>
 
     <string name="title_feedback">App Feedback</string>
@@ -77,6 +79,16 @@
     <string name="species_intro">Touch to set or change species.</string>
     <string name="species_label_name">name:</string>
     <string name="species_label_days">days:</string>
+    <string name="time_label">Time</string>
+    <string name="peeps_label">Peeps</string>
+    <string name="eggs_label">Eggs</string>
+    <string name="notification_title">Notifications</string>
+    <string name="notifications_checkbox">use notifications</string>
+
+    <string name="calendar_permission_text">HatchTrack needs this permission to read and write the calendar which it uses to notify you about hatch events.
+        \n\HatchTrack does not transmit or save any of your personal calendar information. It only uses the calendar to remind you about your hatches.
+        \n\nYou can revoke this permission at any time in your phone\'s App Settings.</string>
+    <string name="calendar_permission_title">Calendar Permissions</string>
 
     <string-array name="selection_choices">
         <item>All</item>

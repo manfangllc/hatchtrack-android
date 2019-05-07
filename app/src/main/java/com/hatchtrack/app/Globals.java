@@ -22,6 +22,9 @@ class Globals {
     static final int LOADER_ID_PEEP_PEEPTABLE           = 0x211;
     //in CreateHatchFragment
     static final int LOADER_ID_CREATEHATCH_SPECIESTABLE = 0x300;
+    // permissions
+    static final int PERMISSION_WRITE_CALENDAR = 1;
+    static final int PERMISSION_READ_CALENDAR = 2;
 
     // keys for various bundle items
     static final String KEY_HATCH_ID      = "KEY_HATCH_ID";
