@@ -38,6 +38,7 @@ import com.hatchtrack.app.database.PeepTable;
 import com.hatchtrack.app.database.SpeciesTable;
 
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -138,6 +139,8 @@ public class HatchFragment extends Fragment implements LoaderManager.LoaderCallb
         }
     }
 
+    private static final String TURN_EVENT = "Turn the eggs!"; //This is event description
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         this.toolbarLayout.setTitle("Hatch");
@@ -177,78 +180,37 @@ public class HatchFragment extends Fragment implements LoaderManager.LoaderCallb
                 }
             }
         });
-//        rootView.findViewById(R.id.speciesButton).setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                Fragment f = HatchFragment.this.getFragmentManager().findFragmentByTag("SpeciesDialog");
-//                if(f == null) {
-//                    DialogChooseSpecies d = new DialogChooseSpecies();
-//                    Bundle b = new Bundle();
-//                    b.putInt(Globals.KEY_HATCH_ID, HatchFragment.this.hatchId);
-//                    b.putIntArray(Globals.KEY_SPECIES_IDS, HatchFragment.this.speciesIds);
-//                    b.putFloatArray(Globals.KEY_SPECIES_DAYS, HatchFragment.this.speciesDays);
-//                    b.putStringArray(Globals.KEY_SPECIES_NAMES, HatchFragment.this.speciesNames);
-//                    int[] ids = new int[HatchFragment.this.speciesPicMap.size()];
-//                    String[] files = new String[HatchFragment.this.speciesPicMap.size()];
-//                    int i = 0;
-//                    for (Integer id : HatchFragment.this.speciesPicMap.keySet()) {
-//                        ids[i] = id;
-//                        files[i] = HatchFragment.this.speciesPicMap.get(id);
-//                        i++;
-//                    }
-//                    b.putIntArray(Globals.KEY_SPECIES_PICS_IDS, ids);
-//                    b.putStringArray(Globals.KEY_SPECIES_PICS_STRINGS, files);
-//                    d.setArguments(b);
-//                    d.show(HatchFragment.this.getFragmentManager(), "SpeciesDialog");
-//                }
-//            }
-//        });
 
         rootView.findViewById(R.id.reminderTest).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final long MINUTES = (60L * 1000L);
+                final long EIGHT_OWAH = (8 * 60L * MINUTES);
+                final long DAY = (3 * EIGHT_OWAH);
+                if (!HatchFragment.this.checkCalendarPermission()) {
+                    return;
+                }
+                Util.createCalendarTurns(HatchFragment.this.context, HatchFragment.this.hatchId, HatchFragment.this.name, Data.getSpeciesDaysFromHatch(HatchFragment.this.context, HatchFragment.this.hatchId), System.currentTimeMillis());
+            }
+        });
+
+        rootView.findViewById(R.id.reminderTest2).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(!HatchFragment.this.checkCalendarPermission()){
                     return;
                 }
-                SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy");
-                String eventTitle = "Hatch Event One"; //This is event title
-                String eventDescription = "this is the description"; //This is event description
-                String eventLocation = "Location: Incubator"; //This is the address for your event location
+                Util.removeTurnEvents(HatchFragment.this.context, HatchFragment.this.hatchId);
+            }
+        });
 
-                long startTimeInMilliseconds = System.currentTimeMillis() + (2 * 24 * 60 * 60 * 1000); // in two days
-                long endTimeInMilliseconds = startTimeInMilliseconds + (60 * 60 * 1000); // one owah after start
-
-                ContentValues values = new ContentValues();
-                values.put(CalendarContract.Events.CALENDAR_ID, 1);
-                values.put(CalendarContract.Events.TITLE, eventTitle);
-                values.put(CalendarContract.Events.DESCRIPTION, eventDescription);
-                values.put(CalendarContract.Events.EVENT_LOCATION, eventLocation);
-                values.put(CalendarContract.Events.DTSTART, startTimeInMilliseconds);
-                values.put(CalendarContract.Events.DTEND, endTimeInMilliseconds);
-                values.put(CalendarContract.Events.HAS_ALARM, 1);
-                TimeZone timeZone = TimeZone.getDefault();
-                values.put(CalendarContract.Events.EVENT_TIMEZONE, timeZone.getID());
-                values.put(CalendarContract.Events.RRULE, "FREQ=DAILY;COUNT=1");
-
-                Uri eventUri;
-                eventUri = Uri.parse("content://com.android.calendar/events");
-                Uri l_uri = context.getContentResolver().insert(eventUri, values);
-                Log.e("EventTest", l_uri.toString());
-
-                try {
-                    Uri remindersUri;
-                    long id = Long.parseLong(l_uri.getLastPathSegment()); //Added event id
-                    ContentValues reminders = new ContentValues();
-                    reminders.put(CalendarContract.Reminders.EVENT_ID, id);
-                    //METHOD_DEFAULT = 0, METHOD_ALERT = 1, METHOD_EMAIL = 2, METHOD_SMS = 3, METHOD_ALARM = 4
-                    reminders.put(CalendarContract.Reminders.METHOD, CalendarContract.Reminders.METHOD_ALERT);
-                    reminders.put(CalendarContract.Reminders.MINUTES, 1);
-                    remindersUri = Uri.parse("content://com.android.calendar/reminders");
-                    Uri uri = context.getContentResolver().insert(remindersUri, reminders);
-                    Log.e("RemindersTest", uri.toString());
-                } catch (Exception e) {
-                    e.printStackTrace();
+        rootView.findViewById(R.id.reminderTest3).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(!HatchFragment.this.checkCalendarPermission()){
+                    return;
                 }
+                Util.removeTurnReminders(HatchFragment.this.context, HatchFragment.this.hatchId);
             }
         });
 

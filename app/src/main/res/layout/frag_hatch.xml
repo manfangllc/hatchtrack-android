@@ -98,6 +98,22 @@
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/labelTime" />
 
+            <Button
+                android:id="@+id/reminderTest2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Remove Eventss"
+                app:layout_constraintStart_toStartOf="@id/reminderTest"
+                app:layout_constraintTop_toBottomOf="@id/reminderTest" />
+
+            <Button
+                android:id="@+id/reminderTest3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Remove Reminders"
+                app:layout_constraintStart_toStartOf="@id/reminderTest2"
+                app:layout_constraintTop_toBottomOf="@id/reminderTest2" />
+
         </android.support.constraint.ConstraintLayout>
 
         <android.support.constraint.ConstraintLayout
