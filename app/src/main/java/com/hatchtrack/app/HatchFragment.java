@@ -3,12 +3,16 @@ package com.hatchtrack.app;
 import android.Manifest;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.ParseException;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.Looper;
 import android.provider.CalendarContract;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -22,6 +26,7 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v7.app.AlertDialog;
 import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -69,8 +74,12 @@ public class HatchFragment extends Fragment implements LoaderManager.LoaderCallb
     private String picMapPath;
     private String imagePath;
     private EditText textView;
+    private Handler bgHandler;
+    private Handler uiHandler;
+    private AlertDialog bizzyDialog;
 
     public HatchFragment() {
+        this.uiHandler = new Handler();
     }
 
     public static HatchFragment newInstance(CollapsingToolbarLayout ctl, AppBarLayout abl, ImageView iv, FloatingActionButton fab, CoordinatorLayout mc) {
@@ -111,6 +120,11 @@ public class HatchFragment extends Fragment implements LoaderManager.LoaderCallb
         if(this.loaderManager == null) {
             this.loaderManager = this.getActivity().getSupportLoaderManager();
         }
+        if(this.bgHandler == null){
+            HandlerThread ht = new HandlerThread("HatchFragment bgThread");
+            ht.start();
+            this.bgHandler = new Handler(ht.getLooper());
+        }
         if(this.needLoaders){
             this.loaderManager.initLoader(Globals.LOADER_ID_HATCH_HATCHTABLE, null, this);
             this.loaderManager.initLoader(Globals.LOADER_ID_HATCH_PEEPTABLE, null, this);
@@ -136,6 +150,15 @@ public class HatchFragment extends Fragment implements LoaderManager.LoaderCallb
             this.needLoaders = true;
             this.loaderManager = null;
             this.imagePath = null;
+            if(this.bgHandler != null){
+                this.bgHandler.postAtFrontOfQueue(new Runnable(){
+                    @Override
+                    public void run() {
+                        Looper.myLooper().quitSafely();
+                    }
+                });
+                this.bgHandler = null;
+            }
         }
     }
 
@@ -184,13 +207,38 @@ public class HatchFragment extends Fragment implements LoaderManager.LoaderCallb
         rootView.findViewById(R.id.reminderTest).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final long MINUTES = (60L * 1000L);
-                final long EIGHT_OWAH = (8 * 60L * MINUTES);
-                final long DAY = (3 * EIGHT_OWAH);
                 if (!HatchFragment.this.checkCalendarPermission()) {
                     return;
                 }
-                Util.createCalendarTurns(HatchFragment.this.context, HatchFragment.this.hatchId, HatchFragment.this.name, Data.getSpeciesDaysFromHatch(HatchFragment.this.context, HatchFragment.this.hatchId), System.currentTimeMillis());
+                AlertDialog.Builder builder = new AlertDialog.Builder(HatchFragment.this.context, R.style.HatchTrackDialogThemeAnim_NoMinWidth);
+                HatchFragment.this.bizzyDialog = builder.setView(R.layout.dialog_bizzy).setTitle("Updating Calendar").create();
+                HatchFragment.this.bizzyDialog.show();
+                HatchFragment.this.bgHandler.post(new Runnable(){
+                    @Override
+                    public void run() {
+                        Util.createCalendarTurns(
+                                HatchFragment.this.context,
+                                HatchFragment.this.hatchId,
+                                HatchFragment.this.name,
+                                Data.getSpeciesDaysFromHatch(HatchFragment.this.context, HatchFragment.this.hatchId) - 5,
+                                System.currentTimeMillis(),
+                                new Util.UtilDoneCallback(){
+                                    @Override
+                                    public void onDone(int n) {
+                                        if(HatchFragment.this.bizzyDialog != null){
+                                            HatchFragment.this.uiHandler.post(new Runnable(){
+                                                @Override
+                                                public void run() {
+                                                    HatchFragment.this.bizzyDialog.dismiss();
+                                                    HatchFragment.this.bizzyDialog = null;
+                                                }
+                                            });
+                                        }
+                                    }
+                                }
+                        );
+                    }
+                });
             }
         });
 
@@ -200,7 +248,28 @@ public class HatchFragment extends Fragment implements LoaderManager.LoaderCallb
                 if(!HatchFragment.this.checkCalendarPermission()){
                     return;
                 }
-                Util.removeTurnEvents(HatchFragment.this.context, HatchFragment.this.hatchId);
+                AlertDialog.Builder builder = new AlertDialog.Builder(HatchFragment.this.context, R.style.HatchTrackDialogThemeAnim_NoMinWidth);
+                HatchFragment.this.bizzyDialog = builder.setView(R.layout.dialog_bizzy).setTitle("Updating Calendar").create();
+                HatchFragment.this.bizzyDialog.show();
+                HatchFragment.this.bgHandler.post(new Runnable(){
+                    @Override
+                    public void run() {
+                        Util.removeTurnEvents(HatchFragment.this.context, HatchFragment.this.hatchId, new Util.UtilDoneCallback(){
+                            @Override
+                            public void onDone(int n) {
+                                if(HatchFragment.this.bizzyDialog != null){
+                                    HatchFragment.this.uiHandler.post(new Runnable(){
+                                        @Override
+                                        public void run() {
+                                            HatchFragment.this.bizzyDialog.dismiss();
+                                            HatchFragment.this.bizzyDialog = null;
+                                        }
+                                    });
+                                }
+                            }
+                        });
+                    }
+                });
             }
         });
 
@@ -210,7 +279,28 @@ public class HatchFragment extends Fragment implements LoaderManager.LoaderCallb
                 if(!HatchFragment.this.checkCalendarPermission()){
                     return;
                 }
-                Util.removeTurnReminders(HatchFragment.this.context, HatchFragment.this.hatchId);
+                AlertDialog.Builder builder = new AlertDialog.Builder(HatchFragment.this.context, R.style.HatchTrackDialogThemeAnim_NoMinWidth);
+                HatchFragment.this.bizzyDialog = builder.setView(R.layout.dialog_bizzy).setTitle("Updating Calendar").create();
+                HatchFragment.this.bizzyDialog.show();
+                HatchFragment.this.bgHandler.post(new Runnable(){
+                    @Override
+                    public void run() {
+                        Util.removeTurnReminders(HatchFragment.this.context, HatchFragment.this.hatchId, new Util.UtilDoneCallback(){
+                            @Override
+                            public void onDone(int n) {
+                                if(HatchFragment.this.bizzyDialog != null){
+                                    HatchFragment.this.uiHandler.post(new Runnable(){
+                                        @Override
+                                        public void run() {
+                                            HatchFragment.this.bizzyDialog.dismiss();
+                                            HatchFragment.this.bizzyDialog = null;
+                                        }
+                                    });
+                                }
+                            }
+                        });
+                    }
+                });
             }
         });
 

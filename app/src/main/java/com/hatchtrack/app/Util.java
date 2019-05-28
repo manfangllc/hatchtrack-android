@@ -144,10 +144,14 @@ class Util {
         crossfader.startTransition(1000);
     }
 
-    public static void createCalendarTurns(Context context, int hatchId, String hatchName, float days, long startMillis){
-        Calendar calStart = Calendar.getInstance();
+    interface UtilDoneCallback {
+        void onDone(int n);
+    }
+
+    static void createCalendarTurns(Context context, int hatchId, String hatchName, float days, long startMillis, UtilDoneCallback callback){
+        Calendar calNext = Calendar.getInstance();
         Calendar calEnd = Calendar.getInstance();
-        calStart.setTimeInMillis(startMillis);
+        calNext.setTimeInMillis(startMillis);
         calEnd.setTimeInMillis(startMillis);
         calEnd.add(Calendar.HOUR_OF_DAY, (int)(24 * days));
 
@@ -168,7 +172,7 @@ class Util {
         values.put(CalendarContract.Events.RRULE, "FREQ=DAILY;COUNT=1");
 
         /* 06, 12, 18 */
-        int h = calStart.get(Calendar.HOUR_OF_DAY);
+        int h = calNext.get(Calendar.HOUR_OF_DAY);
         if(h < 6){
             h = 6 - h;
         } else if( h < 12){
@@ -178,58 +182,33 @@ class Util {
         } else {
             h = 30 - h;
         }
-        calStart.add(Calendar.HOUR_OF_DAY, h);
+        calNext.add(Calendar.HOUR_OF_DAY, h);
         final long tEnd = calEnd.getTimeInMillis();
-        long tStart = calStart.getTimeInMillis();
+        long tNext = calNext.getTimeInMillis();
         Uri uri;
-        while(tStart < tEnd){
-            Log.e(TAG, "cal=" + calStart.toString());
+        while(tNext < tEnd){
+            Log.e(TAG, "cal=" + calNext.toString());
             // write the event and reminder
-            values.put(CalendarContract.Events.DTSTART, tStart);
-            values.put(CalendarContract.Events.DTEND, tStart);
+            values.put(CalendarContract.Events.DTSTART, tNext);
+            values.put(CalendarContract.Events.DTEND, tNext);
             uri = context.getContentResolver().insert(eventUri, values);
-            Util.createCalendarReminder(context, Long.parseLong(uri.getLastPathSegment()));
-            // compute the next time
-            if(calStart.get(Calendar.HOUR_OF_DAY) >= 18){
-                calStart.add(Calendar.HOUR_OF_DAY, 12);
-            } else {
-                calStart.add(Calendar.HOUR_OF_DAY, 6);
+            if (uri != null) {
+                Util.createCalendarReminder(context, Long.parseLong(uri.getLastPathSegment()));
             }
-            tStart = calStart.getTimeInMillis();
+            // compute the next time
+            if(calNext.get(Calendar.HOUR_OF_DAY) >= 18){
+                calNext.add(Calendar.HOUR_OF_DAY, 12);
+            } else {
+                calNext.add(Calendar.HOUR_OF_DAY, 6);
+            }
+            tNext = calNext.getTimeInMillis();
         }
-
-/*
-
-
-        Uri uri;
-        for(int day = 0; day < 5; day++){
-
-                    t += EIGHT_OWAH;
-                    values.put(CalendarContract.Events.DTSTART, t);
-                    values.put(CalendarContract.Events.DTEND, t);
-                    uri = context.getContentResolver().insert(eventUri, values);
-                    Log.e(TAG, "insert=" + uri.toString());
-                    try {
-                        long id = Long.parseLong(uri.getLastPathSegment()); //Added event id
-                        reminder.put(CalendarContract.Reminders.EVENT_ID, id);
-                        //METHOD_DEFAULT = 0, METHOD_ALERT = 1, METHOD_EMAIL = 2, METHOD_SMS = 3, METHOD_ALARM = 4
-                        reminder.put(CalendarContract.Reminders.METHOD, CalendarContract.Reminders.METHOD_ALERT);
-                        reminder.put(CalendarContract.Reminders.MINUTES, 1);
-                        context.getContentResolver().insert(remindersUri, reminder);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-
-                    t += EIGHT_OWAH;
-                    values.put(CalendarContract.Events.DTSTART, t);
-                    values.put(CalendarContract.Events.DTEND, t);
-                    uri = context.getContentResolver().insert(eventUri, values);
-                    Log.e(TAG, "insert=" + uri.toString());
+        if(callback != null){
+            callback.onDone(0);
         }
-*/
     }
 
-    public static void createCalendarReminder(Context context, long eventId){
+    static void createCalendarReminder(Context context, long eventId){
         try {
             Uri remindersUri;
             remindersUri = Uri.parse("content://com.android.calendar/reminders");
@@ -244,23 +223,28 @@ class Util {
         }
     }
 
-    public static void removeTurnEvents(Context context, int hatchId){
+    static void removeTurnEvents(Context context, int hatchId, UtilDoneCallback callback){
         Uri eventUri = Uri.parse("content://com.android.calendar/events");
+        String select = "(" + CalendarContract.Events.CALENDAR_ID + " = " + 1 + ") AND (" + CalendarContract.Events.DESCRIPTION + " LIKE '%Turn eggs! (" + hatchId + ")') AND (" + CalendarContract.Events.DELETED + " == 0)";
         int nrecs = context.getContentResolver().delete(
                 eventUri,
-                "(" + CalendarContract.Events.CALENDAR_ID + " = " + 1 + ") AND (" + CalendarContract.Events.DESCRIPTION + " LIKE '%Turn eggs! (" + hatchId + ")')",
+                select,
                 null
         );
         Log.e(TAG, "removeTurnEvents: deleted=" + nrecs + " records");
+        if(callback != null){
+            callback.onDone(0);
+        }
     }
 
-    public static void removeTurnReminders(Context context, int hatchId){
+    static void removeTurnReminders(Context context, int hatchId, UtilDoneCallback callback){
         Uri eventUri = Uri.parse("content://com.android.calendar/events");
         Uri remindersUri = Uri.parse("content://com.android.calendar/reminders");
+        String select = "(" + CalendarContract.Events.CALENDAR_ID + " = " + 1 + ") AND (" + CalendarContract.Events.DESCRIPTION + " LIKE '%Turn eggs! (" + hatchId + ")') AND (" + CalendarContract.Events.DELETED + " = 0)";
         Cursor cursor = context.getContentResolver().query(
                 eventUri,
-                new String[]{CalendarContract.Reminders._ID},
-                "(" + CalendarContract.Events.CALENDAR_ID + " = " + 1 + ") AND (" + CalendarContract.Events.DESCRIPTION + " LIKE '%Turn eggs! (" + hatchId + ")')",
+                new String[]{CalendarContract.Events._ID},
+                select,
                 null,
                 null
         );
@@ -268,11 +252,41 @@ class Util {
         if(cursor != null){
             cursor.moveToFirst();
             while(!cursor.isAfterLast()){
-                nrecs += context.getContentResolver().delete(remindersUri, CalendarContract.Reminders.EVENT_ID + " = " + cursor.getLong(cursor.getColumnIndex(CalendarContract.Reminders._ID)), null);
+                String w = CalendarContract.Reminders.EVENT_ID + " = " + cursor.getLong(cursor.getColumnIndex(CalendarContract.Events._ID));
+                nrecs += context.getContentResolver().delete(remindersUri, w, null);
                 cursor.moveToNext();
             }
             cursor.close();
         }
         Log.e(TAG, "removeTurnReminders: deleted=" + nrecs + " records");
+        if(callback != null){
+            callback.onDone(0);
+        }
     }
- }
+
+    static void addTurnReminders(Context context, int hatchId, UtilDoneCallback callback){
+        Uri eventUri = Uri.parse("content://com.android.calendar/events");
+        String select = "(" + CalendarContract.Events.CALENDAR_ID + " = " + 1 + ") AND (" + CalendarContract.Events.DESCRIPTION + " LIKE '%Turn eggs! (" + hatchId + ")')  AND (" + CalendarContract.Events.DELETED + " = 0))";
+        Cursor cursor = context.getContentResolver().query(
+                eventUri,
+                new String[]{CalendarContract.Reminders._ID},
+                select,
+                null,
+                null
+        );
+        int nrecs = 0;
+        if(cursor != null){
+            cursor.moveToFirst();
+            while(!cursor.isAfterLast()){
+                Util.createCalendarReminder(context, cursor.getLong(cursor.getColumnIndex(CalendarContract.Reminders._ID)));
+                cursor.moveToNext();
+            }
+            cursor.close();
+        }
+        Log.e(TAG, "removeTurnReminders: deleted=" + nrecs + " records");
+        if(callback != null){
+            callback.onDone(0);
+        }
+    }
+
+}

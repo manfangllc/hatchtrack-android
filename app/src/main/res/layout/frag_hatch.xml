@@ -94,7 +94,7 @@
                 android:id="@+id/reminderTest"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Add Reminders"
+                android:text="Add Events and Reminders"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/labelTime" />
 
@@ -102,7 +102,7 @@
                 android:id="@+id/reminderTest2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Remove Eventss"
+                android:text="Remove Events"
                 app:layout_constraintStart_toStartOf="@id/reminderTest"
                 app:layout_constraintTop_toBottomOf="@id/reminderTest" />
 
