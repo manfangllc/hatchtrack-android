@@ -3,12 +3,10 @@ package com.hatchtrack.app;
 import android.Manifest;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.preference.CheckBoxPreference;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
@@ -112,7 +110,7 @@ public class CreateHatchFragment extends Fragment implements Stackable, LoaderMa
         this.imageView.setImageResource(R.drawable.hatch_1);
         this.appBarLayout.setExpanded(true);
 
-        View rootView = inflater.inflate(R.layout.frag_create_hatch, container, false);
+        View rootView = inflater.inflate(R.layout.frag_hatch, container, false);
         Context context = this.getContext();
         // setup ui contraptions
         if(context != null) {

@@ -1,19 +1,15 @@
 package com.hatchtrack.app;
 
 import android.Manifest;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
-import android.net.ParseException;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
-import android.provider.CalendarContract;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
@@ -29,11 +25,17 @@ import android.support.v4.content.Loader;
 import android.support.v7.app.AlertDialog;
 import android.text.Html;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.hatchtrack.app.database.Data;
 import com.hatchtrack.app.database.HatchPeepTable;
@@ -42,14 +44,16 @@ import com.hatchtrack.app.database.HatchtrackProvider;
 import com.hatchtrack.app.database.PeepTable;
 import com.hatchtrack.app.database.SpeciesTable;
 
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.TimeZone;
 
-public class HatchFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
+public class HatchFragment extends Fragment implements
+        LoaderManager.LoaderCallbacks<Cursor>,
+        TextView.OnEditorActionListener,
+        View.OnClickListener,
+        ChooseSpeciesView.ChooseSpeciesListener,
+        DialogEggCount.EggCountListener,
+        CompoundButton.OnCheckedChangeListener {
     private static final String TAG = HatchFragment.class.getSimpleName();
 
     private Context context;
@@ -67,6 +71,9 @@ public class HatchFragment extends Fragment implements LoaderManager.LoaderCallb
     float[] speciesDays = new float[0];
     Map<Integer, String> speciesPicMap = new HashMap<>();
     private String name;
+    private String newHatchName;
+    private int newSpeciesId;
+    private int newEggCount;
     private int[] peepIds = new int[0];
     private String[] peepNames = new String[0];
     private int[] freePeepIds = new int[0];
@@ -77,6 +84,14 @@ public class HatchFragment extends Fragment implements LoaderManager.LoaderCallb
     private Handler bgHandler;
     private Handler uiHandler;
     private AlertDialog bizzyDialog;
+    private View nameContainer;
+    private View speciesContainer;
+    private View countContainer;
+    private TextView countValue;
+    private EditText nameText;
+    private TextView speciesValue;
+    private TextView daysValue;
+    private CheckBox notificationsCheckbox;
 
     public HatchFragment() {
         this.uiHandler = new Handler();
@@ -117,6 +132,9 @@ public class HatchFragment extends Fragment implements LoaderManager.LoaderCallb
         this.freePeepIds = new int[0];
         this.peepNames = new String[0];
         this.freePeepNames = new String[0];
+        this.newSpeciesId = 0;
+        this.newEggCount = 0;
+        this.newHatchName = null;
         if(this.loaderManager == null) {
             this.loaderManager = this.getActivity().getSupportLoaderManager();
         }
@@ -170,6 +188,23 @@ public class HatchFragment extends Fragment implements LoaderManager.LoaderCallb
         this.appBarLayout.setExpanded(true);
 
         View rootView = inflater.inflate(R.layout.frag_hatch, container, false);
+        // species
+        this.speciesContainer = rootView.findViewById(R.id.speciesContainer);
+        this.speciesContainer.setOnClickListener(this);
+        // egg count
+        this.countValue = rootView.findViewById(R.id.countValue);
+        this.countContainer = rootView.findViewById(R.id.countContainer);
+        this.countContainer.setOnClickListener(this);
+        this.speciesValue = rootView.findViewById(R.id.speciesNameValue);
+        this.daysValue = rootView.findViewById(R.id.speciesDaysValue);
+        // name
+        this.nameContainer = rootView.findViewById(R.id.nameContainer);
+        this.nameContainer.setOnClickListener(this);
+        this.nameText = rootView.findViewById(R.id.nameText);
+        this.nameText.setOnEditorActionListener(this);
+        // notifications
+        this.notificationsCheckbox = rootView.findViewById(R.id.notificationsCheckbox);
+        this.notificationsCheckbox.setOnCheckedChangeListener(this);
         this.textView = rootView.findViewById(R.id.text);
         rootView.findViewById(R.id.peepButton).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -336,6 +371,13 @@ public class HatchFragment extends Fragment implements LoaderManager.LoaderCallb
             this.toolbarLayout.setTitle(this.name);
         }
     }
+
+//    @Override
+//    public void onVisible() {
+//        this.toolbarLayout.setTitle("New Hatch...");
+//        this.setupFab();
+//        this.imageView.setImageResource(R.drawable.hatch_1);
+//    }
 
     @NonNull
     @Override
@@ -516,6 +558,132 @@ public class HatchFragment extends Fragment implements LoaderManager.LoaderCallb
         }
     }
 
+    // hatch name
+    @Override
+    public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+        Log.i(TAG, "onEditorAction()");
+        if (actionId == EditorInfo.IME_ACTION_DONE) {
+            this.newHatchName = v.getText().toString();
+            this.checkStart();
+        }
+        return false;
+    }
+
+    // choose species
+    @Override
+    public void onClick(View v) {
+        if(v == this.speciesContainer) {
+            Log.i(TAG, "onClick(): SPECIES");
+            Fragment f = HatchFragment.this.getFragmentManager().findFragmentByTag("SpeciesDialog");
+            if (f == null) {
+                DialogChooseSpecies d = new DialogChooseSpecies();
+                d.setOnSpeciesListener(this);
+                Bundle b = new Bundle();
+                b.putIntArray(Globals.KEY_SPECIES_IDS, HatchFragment.this.speciesIds);
+                b.putFloatArray(Globals.KEY_SPECIES_DAYS, HatchFragment.this.speciesDays);
+                b.putStringArray(Globals.KEY_SPECIES_NAMES, HatchFragment.this.speciesNames);
+                int[] ids = new int[HatchFragment.this.speciesPicMap.size()];
+                String[] files = new String[HatchFragment.this.speciesPicMap.size()];
+                int i = 0;
+                for (Integer id : HatchFragment.this.speciesPicMap.keySet()) {
+                    ids[i] = id;
+                    files[i] = HatchFragment.this.speciesPicMap.get(id);
+                    i++;
+                }
+                b.putIntArray(Globals.KEY_SPECIES_PICS_IDS, ids);
+                b.putStringArray(Globals.KEY_SPECIES_PICS_STRINGS, files);
+                d.setArguments(b);
+                d.show(HatchFragment.this.getFragmentManager(), "SpeciesDialog");
+            }
+        }
+        else if(v == this.nameContainer) {
+            Log.i(TAG, "onClick(): NAME");
+            this.nameText.post(new Runnable() {
+                public void run() {
+                    HatchFragment.this.nameText.requestFocus();
+                    InputMethodManager lManager = (InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                    lManager.showSoftInput(HatchFragment.this.nameText, 0);
+                }
+            });
+        }
+        else if(v == this.countContainer){
+            Log.i(TAG, "onClick(): COUNT");
+            Fragment f = HatchFragment.this.getFragmentManager().findFragmentByTag("EggCountDialog");
+            if(f == null) {
+                DialogEggCount d = new DialogEggCount();
+                d.setEggCountListener(HatchFragment.this);
+                d.setValue(this.newEggCount);
+                d.show(HatchFragment.this.getFragmentManager(), "EggCountDialog");
+            }
+        }
+    }
+
+    @Override
+    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+        if(this.getActivity() != null){
+            if(buttonView == this.notificationsCheckbox){
+                if(isChecked){
+                    if(ContextCompat.checkSelfPermission(this.getActivity(), Manifest.permission.WRITE_CALENDAR) != PackageManager.PERMISSION_GRANTED){
+                        // we don't have have permission so make sure checkbox stays off
+                        this.notificationsCheckbox.setChecked(false);
+                        // try to get permission
+                        requestPermissions(new String[]{Manifest.permission.READ_CALENDAR, Manifest.permission.WRITE_CALENDAR}, Globals.PERMISSION_WRITE_CALENDAR);
+                    } else {
+                        // we have permission so show the notification options
+                    }
+                } else {
+                    // hide options and remove notifications
+                }
+            }
+        }
+    }
+
+    @Override
+    public void onSpeciesChosen(int speciesId, String speciesName, float speciesDays) {
+        Util.switchImages(this.getContext(), this.imageView, Uri.parse(this.speciesPicMap.get(speciesId)).getPath());
+        this.newSpeciesId = speciesId;
+        this.speciesValue.setText(speciesName);
+        this.daysValue.setText(Float.toString(speciesDays));
+        this.checkStart();
+    }
+
+    @Override
+    public void onEggCount(int count) {
+        Log.i(TAG, "onEggCount(" + count + ")");
+        this.countValue.setText(Integer.toString(count));
+        this.newEggCount = count;
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch(requestCode){
+            case Globals.PERMISSION_WRITE_CALENDAR:
+                if ((grantResults.length > 0 ) && (grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+                    // permission was granted, yay!
+                    // turn notifications on
+                    this.notificationsCheckbox.setChecked(true);
+                } else {
+                    // permission denied...eediots!
+                    this.notificationsCheckbox.setChecked(false);
+                    // 'splain why we need it
+                    (new AlertDialog.Builder(this.getActivity(), R.style.HatchTrackDialogThemeAnim))
+                            .setTitle(this.getActivity().getResources().getString(R.string.calendar_permission_title))
+                            .setMessage(this.getActivity().getResources().getString(R.string.calendar_permission_text))
+                            .setPositiveButton(this.getActivity().getResources().getString(R.string.neutral), new DialogInterface.OnClickListener(){
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.dismiss();
+                                }
+                            })
+                            .create()
+                            .show();
+                }
+                break;
+        }
+    }
+
+
     private void refreshImage(){
         String s = this.speciesPicMap.get(this.speciesId);
         if(s != null){
@@ -547,4 +715,16 @@ public class HatchFragment extends Fragment implements LoaderManager.LoaderCallb
         boolean result = (ContextCompat.checkSelfPermission(this.getActivity(), Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED);
         return(result);
     }
+
+    private void checkStart(){
+        if((this.newSpeciesId > 0) && (this.newHatchName != null)){
+            this.fab.show();
+            Snackbar.make(
+                    this.mainCoordinator,
+                    Html.fromHtml("<font color=\"#ffff00\">" + this.getResources().getText(R.string.snackbar_fab_createhatch) + "</font>"),
+                    Snackbar.LENGTH_LONG
+            ).show();
+        }
+    }
+
 }
