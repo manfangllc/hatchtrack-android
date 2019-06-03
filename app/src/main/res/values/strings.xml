@@ -70,6 +70,10 @@
     <string name="egg_count_hint">set egg count</string>
     <string name="title_buypeeps">Get Peep</string>
 
+    <string name="status_label">Hatch Status</string>
+    <string name="status_intro">Setup hatch info before starting.</string>
+    <string name="start_hatch_button_label">Start Hatch</string>
+    <string name="end_hatch_button_label">End Hatch</string>
     <string name="hatch_name_label">Hatch Name</string>
     <string name="hatch_name_intro">Touch to set or change hatch name.</string>
     <string name="egg_count_label">Egg Count</string>
@@ -82,8 +86,8 @@
     <string name="time_label">Time</string>
     <string name="peeps_label">Peeps</string>
     <string name="eggs_label">Eggs</string>
-    <string name="notification_title">Notifications</string>
-    <string name="notifications_checkbox">use notifications</string>
+    <string name="reminders_title">Calendar Reminders</string>
+    <string name="turn_reminders_checkbox">Turn reminders</string>
 
     <string name="calendar_permission_text">HatchTrack needs this permission to read and write the calendar which it uses to notify you about hatch events.
         \n\HatchTrack does not transmit or save any of your personal calendar information. It only uses the calendar to remind you about your hatches.

@@ -16,6 +16,56 @@
         android:orientation="vertical">
 
         <android.support.constraint.ConstraintLayout
+            android:id="@+id/statusContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?attr/selectableItemBackground">
+
+            <android.support.constraint.Guideline
+                android:id="@+id/guideline8"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent=".3" />
+
+            <TextView
+                android:id="@+id/statusTitle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:background="@color/colorPrimaryDark"
+                android:text="@string/status_label"
+                android:textColor="@color/colorPrimary"
+                android:textStyle="bold"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/statusIntro"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="@string/status_intro"
+                android:visibility="visible"
+                app:layout_constraintLeft_toLeftOf="@+id/statusTitle"
+                app:layout_constraintTop_toBottomOf="@+id/statusTitle" />
+
+            <Button
+                android:id="@+id/startHatchButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"
+                android:enabled="false"
+                android:text="@string/start_hatch_button_label"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/statusIntro" />
+
+        </android.support.constraint.ConstraintLayout>
+
+        <android.support.constraint.ConstraintLayout
             android:id="@+id/nameContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -29,6 +79,7 @@
                 android:text="@string/hatch_name_label"
                 android:textColor="@color/colorPrimary"
                 android:textStyle="bold"
+                app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -40,7 +91,18 @@
                 android:layout_marginTop="10dp"
                 android:text="@string/hatch_name_intro"
                 app:layout_constraintLeft_toLeftOf="@+id/nameTitle"
-                app:layout_constraintTop_toBottomOf="@+id/nameTitle" />
+                app:layout_constraintTop_toBottomOf="@+id/nameTitle"
+                tools:visibility="gone" />
+
+            <ImageView
+                android:id="@+id/imageView2"
+                android:layout_width="wrap_content"
+                android:layout_height="24dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/nameTitle"
+                app:srcCompat="@drawable/ic_action_edit" />
 
             <EditText
                 android:id="@+id/nameText"
@@ -54,60 +116,6 @@
                 android:singleLine="true"
                 app:layout_constraintLeft_toLeftOf="@+id/textView2"
                 app:layout_constraintTop_toBottomOf="@+id/textView2" />
-        </android.support.constraint.ConstraintLayout>
-
-        <android.support.constraint.ConstraintLayout
-            android:id="@+id/countContainer"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="?attr/selectableItemBackground">
-
-            <android.support.constraint.Guideline
-                android:id="@+id/guideline5"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                app:layout_constraintGuide_percent=".3"/>
-
-            <TextView
-                android:id="@+id/countTitle"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:background="@color/colorPrimaryDark"
-                android:text="@string/egg_count_label"
-                android:textColor="@color/colorPrimary"
-                android:textStyle="bold"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <TextView
-                android:id="@+id/countIntro"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:text="@string/egg_count_intro"
-                app:layout_constraintLeft_toLeftOf="@+id/countTitle"
-                app:layout_constraintTop_toBottomOf="@+id/countTitle" />
-
-            <TextView
-                android:id="@+id/countNumber"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="4dp"
-                android:text="@string/egg_count_label_number"
-                app:layout_constraintBottom_toBottomOf="@+id/countValue"
-                app:layout_constraintRight_toLeftOf="@+id/guideline5" />
-
-            <TextView
-                android:id="@+id/countValue"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="4dp"
-                android:text="0"
-                android:textSize="24sp"
-                app:layout_constraintLeft_toRightOf="@+id/guideline5"
-                app:layout_constraintTop_toBottomOf="@+id/countIntro" />
 
         </android.support.constraint.ConstraintLayout>
 
@@ -122,7 +130,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                app:layout_constraintGuide_percent=".3"/>
+                app:layout_constraintGuide_percent=".3" />
 
             <TextView
                 android:id="@+id/speciesTitle"
@@ -136,12 +144,23 @@
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
+            <ImageView
+                android:id="@+id/imageView5"
+                android:layout_width="wrap_content"
+                android:layout_height="24dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/speciesTitle"
+                app:srcCompat="@drawable/ic_action_edit" />
+
             <TextView
                 android:id="@+id/speciesIntro"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
                 android:text="@string/species_intro"
+                android:visibility="gone"
                 app:layout_constraintLeft_toLeftOf="@+id/speciesTitle"
                 app:layout_constraintTop_toBottomOf="@+id/speciesTitle" />
 
@@ -186,6 +205,76 @@
 
         </android.support.constraint.ConstraintLayout>
 
+
+        <android.support.constraint.ConstraintLayout
+            android:id="@+id/countContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?attr/selectableItemBackground">
+
+            <android.support.constraint.Guideline
+                android:id="@+id/guideline5"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent=".3"/>
+
+            <TextView
+                android:id="@+id/countTitle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:background="@color/colorPrimaryDark"
+                android:text="@string/egg_count_label"
+                android:textColor="@color/colorPrimary"
+                android:textStyle="bold"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <ImageView
+                android:id="@+id/imageView4"
+                android:layout_width="wrap_content"
+                android:layout_height="24dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginBottom="8dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/countTitle"
+                app:srcCompat="@drawable/ic_action_edit" />
+
+            <TextView
+                android:id="@+id/countIntro"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="@string/egg_count_intro"
+                android:visibility="gone"
+                app:layout_constraintLeft_toLeftOf="@+id/countTitle"
+                app:layout_constraintTop_toBottomOf="@+id/countTitle" />
+
+            <TextView
+                android:id="@+id/countNumber"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="4dp"
+                android:text="@string/egg_count_label_number"
+                app:layout_constraintBottom_toBottomOf="@+id/countValue"
+                app:layout_constraintRight_toLeftOf="@+id/guideline5" />
+
+            <TextView
+                android:id="@+id/countValue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="4dp"
+                android:text="0"
+                android:textSize="24sp"
+                app:layout_constraintLeft_toRightOf="@+id/guideline5"
+                app:layout_constraintTop_toBottomOf="@+id/countIntro" />
+
+        </android.support.constraint.ConstraintLayout>
+
+
         <android.support.constraint.ConstraintLayout
             android:id="@+id/notificationContainer"
             android:layout_width="match_parent"
@@ -200,11 +289,11 @@
                 app:layout_constraintGuide_percent=".3" />
 
             <TextView
-                android:id="@+id/notificationTitle"
+                android:id="@+id/remindersTitle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:background="@color/colorPrimaryDark"
-                android:text="@string/notification_title"
+                android:text="@string/reminders_title"
                 android:textColor="@color/colorPrimary"
                 android:textStyle="bold"
                 app:layout_constraintLeft_toLeftOf="parent"
@@ -216,8 +305,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
-                android:text="@string/notifications_checkbox"
-                app:layout_constraintTop_toBottomOf="@+id/notificationTitle" />
+                android:text="@string/turn_reminders_checkbox"
+                app:layout_constraintTop_toBottomOf="@+id/remindersTitle" />
 
 
         </android.support.constraint.ConstraintLayout>
