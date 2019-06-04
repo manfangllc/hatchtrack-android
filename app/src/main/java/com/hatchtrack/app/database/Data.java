@@ -433,4 +433,18 @@ public class Data {
         cv.put(HatchTable.LAST_MODIFIED, System.currentTimeMillis());
         return(context.getContentResolver().update(HatchtrackProvider.HATCH_URI, cv, HatchTable.ID + " = " + hatchId, null));
     }
+
+    /**
+     *
+     * @param context app context
+     * @param hatchId
+     * @param name hatch name
+     * @return number of hatches updated. should be 1 if the hatch exists, else 0
+     */
+    public static int setHatchName(Context context, int hatchId, String name){
+        ContentValues cv = new ContentValues();
+        cv.put(HatchTable.NAME, name);
+        cv.put(HatchTable.LAST_MODIFIED, System.currentTimeMillis());
+        return(context.getContentResolver().update(HatchtrackProvider.HATCH_URI, cv, HatchTable.ID + " = " + hatchId, null));
+    }
 }
