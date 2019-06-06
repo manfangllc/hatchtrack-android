@@ -69,7 +69,8 @@ public class HatchFragment extends Fragment implements
     private int speciesId;
     int[] speciesIds = new int[0];
     String[] speciesNames = new String[0];
-    float[] speciesDays = new float[0];
+    float[] speciesDaysArray = new float[0];
+    float speciesDays;
     Map<Integer, String> speciesPicMap = new HashMap<>();
     private String name;
     private String newHatchName;
@@ -87,11 +88,12 @@ public class HatchFragment extends Fragment implements
     private AlertDialog bizzyDialog;
     private View nameContainer;
     private View speciesContainer;
+    private String speciesName;
+    private TextView speciesDaysValue;
     private View countContainer;
     private TextView countValue;
     private EditText nameText;
-    private TextView speciesValue;
-    private TextView daysValue;
+    private TextView speciesNameValue;
     private CheckBox notificationsCheckbox;
 
     public HatchFragment() {
@@ -196,8 +198,8 @@ public class HatchFragment extends Fragment implements
         this.countValue = rootView.findViewById(R.id.countValue);
         this.countContainer = rootView.findViewById(R.id.countContainer);
         this.countContainer.setOnClickListener(this);
-        this.speciesValue = rootView.findViewById(R.id.speciesNameValue);
-        this.daysValue = rootView.findViewById(R.id.speciesDaysValue);
+        this.speciesNameValue = rootView.findViewById(R.id.speciesNameValue);
+        this.speciesDaysValue = rootView.findViewById(R.id.speciesDaysValue);
         // name
         this.nameContainer = rootView.findViewById(R.id.nameContainer);
         this.nameContainer.setOnClickListener(this);
@@ -375,6 +377,15 @@ public class HatchFragment extends Fragment implements
                 this.textView.setText(msg);
             }
         }
+        if(this.nameText != null){
+            this.nameText.setText(this.name);
+        }
+        if(this.speciesNameValue != null){
+            this.speciesNameValue.setText(this.speciesName);
+        }
+        if(this.speciesDaysValue != null){
+            this.speciesDaysValue.setText(Float.toString(this.speciesDays));
+        }
         if(this.toolbarLayout != null){
             this.toolbarLayout.setTitle(this.name);
         }
@@ -473,6 +484,12 @@ public class HatchFragment extends Fragment implements
                     int sid = cursor.getInt(cursor.getColumnIndex(HatchTable.SPECIES_ID));
                     if(sid != this.speciesId) {
                         this.speciesId = sid;
+                        if(this.speciesId < this.speciesDaysArray.length) {
+                            this.speciesDays = this.speciesDaysArray[this.speciesId];
+                        }
+                        if(this.speciesId < this.speciesNames.length) {
+                            this.speciesName = this.speciesNames[this.speciesId];
+                        }
                         this.refreshImage();
                     }
                     this.refresh();
@@ -529,7 +546,7 @@ public class HatchFragment extends Fragment implements
             case Globals.LOADER_ID_HATCH_SPECIESTABLE:
                 // all the species
                 this.speciesIds = new int[cursor.getCount()];
-                this.speciesDays = new float[cursor.getCount()];
+                this.speciesDaysArray = new float[cursor.getCount()];
                 this.speciesNames = new String[cursor.getCount()];
                 this.speciesPicMap.clear();
                 if(cursor.moveToFirst()) {
@@ -537,7 +554,7 @@ public class HatchFragment extends Fragment implements
                     while(!cursor.isAfterLast()) {
                         this.speciesIds[i] = cursor.getInt(cursor.getColumnIndex((SpeciesTable.ID)));
                         this.speciesNames[i] = cursor.getString(cursor.getColumnIndex((SpeciesTable.NAME)));
-                        this.speciesDays[i] = cursor.getFloat(cursor.getColumnIndex((SpeciesTable.DAYS)));
+                        this.speciesDaysArray[i] = cursor.getFloat(cursor.getColumnIndex((SpeciesTable.DAYS)));
                         String s = cursor.getString(cursor.getColumnIndex((SpeciesTable.PICTURE_URI)));
                         if(s != null) {
                             this.speciesPicMap.put((this.speciesIds[i]), s);
@@ -589,7 +606,7 @@ public class HatchFragment extends Fragment implements
                 d.setOnSpeciesListener(this);
                 Bundle b = new Bundle();
                 b.putIntArray(Globals.KEY_SPECIES_IDS, HatchFragment.this.speciesIds);
-                b.putFloatArray(Globals.KEY_SPECIES_DAYS, HatchFragment.this.speciesDays);
+                b.putFloatArray(Globals.KEY_SPECIES_DAYS, HatchFragment.this.speciesDaysArray);
                 b.putStringArray(Globals.KEY_SPECIES_NAMES, HatchFragment.this.speciesNames);
                 int[] ids = new int[HatchFragment.this.speciesPicMap.size()];
                 String[] files = new String[HatchFragment.this.speciesPicMap.size()];
@@ -677,8 +694,10 @@ public class HatchFragment extends Fragment implements
     public void onSpeciesChosen(int speciesId, String speciesName, float speciesDays) {
         Util.switchImages(this.getContext(), this.imageView, Uri.parse(this.speciesPicMap.get(speciesId)).getPath());
         this.newSpeciesId = speciesId;
-        this.speciesValue.setText(speciesName);
-        this.daysValue.setText(Float.toString(speciesDays));
+        this.speciesName = speciesName;
+        this.speciesDays = speciesDays;
+        this.speciesNameValue.setText(speciesName);
+        this.speciesDaysValue.setText(Float.toString(this.speciesDays));
         this.checkStart();
     }
 
