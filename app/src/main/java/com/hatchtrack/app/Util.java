@@ -148,7 +148,7 @@ class Util {
         void onDone(int n);
     }
 
-    static void createCalendarTurns(Context context, int hatchId, String hatchName, float days, long startMillis, UtilDoneCallback callback){
+    static void createCalendarTurns(Context context, long hatchId, String hatchName, float days, long startMillis, UtilDoneCallback callback){
         Calendar calNext = Calendar.getInstance();
         Calendar calEnd = Calendar.getInstance();
         calNext.setTimeInMillis(startMillis);
@@ -223,7 +223,7 @@ class Util {
         }
     }
 
-    static void removeTurnEvents(Context context, int hatchId, UtilDoneCallback callback){
+    static void removeTurnEvents(Context context, long hatchId, UtilDoneCallback callback){
         Uri eventUri = Uri.parse("content://com.android.calendar/events");
         String select = "(" + CalendarContract.Events.CALENDAR_ID + " = " + 1 + ") AND (" + CalendarContract.Events.DESCRIPTION + " LIKE '%Turn eggs! (" + hatchId + ")') AND (" + CalendarContract.Events.DELETED + " == 0)";
         int nrecs = context.getContentResolver().delete(

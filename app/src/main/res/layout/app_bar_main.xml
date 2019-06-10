@@ -56,6 +56,7 @@
                     app:layout_constraintRight_toRightOf="parent" />
             </android.support.constraint.ConstraintLayout>
 
+            <!-- android:background="#77000000" -->
             <android.support.v7.widget.Toolbar
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
@@ -64,6 +65,7 @@
                 app:layout_collapseMode="pin"
                 app:layout_scrollFlags="scroll|enterAlways"
                 app:popupTheme="@style/AppTheme.PopupOverlay" />
+
         </android.support.design.widget.CollapsingToolbarLayout>
     </android.support.design.widget.AppBarLayout>
 

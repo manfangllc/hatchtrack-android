@@ -49,6 +49,7 @@ public class HatchListFragment extends Fragment implements Stackable, LoaderMana
 
     public interface HatchClickListener {
         void onHatchClicked(int dbId);
+
         void onCreateHatch();
     }
 
@@ -68,7 +69,6 @@ public class HatchListFragment extends Fragment implements Stackable, LoaderMana
     String[] speciesNames = new String[0];
     float[] speciesDays = new float[0];
     Map<Integer, String> speciesPicMap = new HashMap<>();
-    private CreateHatchFragment createHatchFrag;
 
     public HatchListFragment() {
         Log.i(TAG, "HatchListFragment(): new");
@@ -82,16 +82,16 @@ public class HatchListFragment extends Fragment implements Stackable, LoaderMana
         fragment.imageView = iv;
         fragment.fab = fab;
         fragment.mainCoordinator = mc;
-        return(fragment);
+        return (fragment);
     }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if(this.loaderManager == null) {
-           this.loaderManager = this.getActivity().getSupportLoaderManager();
+        if (this.loaderManager == null) {
+            this.loaderManager = this.getActivity().getSupportLoaderManager();
         }
-        if(this.needLoaders){
+        if (this.needLoaders) {
             this.loaderManager.initLoader(Globals.LOADER_ID_HATCHLIST_SPECIESTABLE, null, this);
             this.needLoaders = false;
         } else {
@@ -103,7 +103,7 @@ public class HatchListFragment extends Fragment implements Stackable, LoaderMana
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.frag_hatch_list, container, false);
         Context context = this.getContext();
-        if(context != null) {
+        if (context != null) {
             // the recycler
             this.hatchListView = rootView.findViewById(R.id.hatchListId);
             this.hatchListView.setLayoutManager(new LinearLayoutManager(rootView.getContext()));
@@ -113,14 +113,16 @@ public class HatchListFragment extends Fragment implements Stackable, LoaderMana
             Spinner spinnerSelect = rootView.findViewById(R.id.spinnerSelect);
             spinnerSelect.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 private int prevPosition;
+
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                    if(this.prevPosition != position) {
+                    if (this.prevPosition != position) {
                         this.prevPosition = position;
                         HatchListFragment.this.selection = SELECTS[position];
                         HatchListFragment.this.reloadData();
                     }
                 }
+
                 @Override
                 public void onNothingSelected(AdapterView<?> parent) {
                     HatchListFragment.this.selection = SELECTS[0];
@@ -134,14 +136,16 @@ public class HatchListFragment extends Fragment implements Stackable, LoaderMana
             Spinner spinnerSort = rootView.findViewById(R.id.spinnerSort);
             spinnerSort.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 private int prevPosition;
+
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                    if(this.prevPosition != position) {
+                    if (this.prevPosition != position) {
                         this.prevPosition = position;
                         HatchListFragment.this.sort = SORTS[position];
                         HatchListFragment.this.reloadData();
                     }
                 }
+
                 @Override
                 public void onNothingSelected(AdapterView<?> parent) {
                     HatchListFragment.this.sort = SORTS[0];
@@ -152,7 +156,7 @@ public class HatchListFragment extends Fragment implements Stackable, LoaderMana
             aa.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             spinnerSort.setAdapter(aa);
         }
-        return(rootView);
+        return (rootView);
     }
 
     @Override
@@ -185,7 +189,7 @@ public class HatchListFragment extends Fragment implements Stackable, LoaderMana
                 break;
             default:
                 // An invalid id was passed in. Things are gonna...
-                throw(new NullPointerException("unexpected CursorLoader id"));
+                throw (new NullPointerException("unexpected CursorLoader id"));
         }
         return result;
     }
@@ -199,14 +203,14 @@ public class HatchListFragment extends Fragment implements Stackable, LoaderMana
                 this.speciesDays = new float[cursor.getCount()];
                 this.speciesNames = new String[cursor.getCount()];
                 this.speciesPicMap.clear();
-                if(cursor.moveToFirst()) {
+                if (cursor.moveToFirst()) {
                     int i = 0;
-                    while(!cursor.isAfterLast()) {
+                    while (!cursor.isAfterLast()) {
                         this.speciesIds[i] = cursor.getInt(cursor.getColumnIndex((SpeciesTable.ID)));
                         this.speciesNames[i] = cursor.getString(cursor.getColumnIndex((SpeciesTable.NAME)));
                         this.speciesDays[i] = cursor.getFloat(cursor.getColumnIndex((SpeciesTable.DAYS)));
                         String s = cursor.getString(cursor.getColumnIndex((SpeciesTable.PICTURE_URI)));
-                        if(s != null) {
+                        if (s != null) {
                             this.speciesPicMap.put((this.speciesIds[i]), s);
                         }
                         i++;
@@ -225,21 +229,19 @@ public class HatchListFragment extends Fragment implements Stackable, LoaderMana
         }
     }
 
-    private void reloadData(){
+    private void reloadData() {
         Bundle b = new Bundle();
         b.putString(Globals.KEY_SELECT, this.selection);
         b.putString(Globals.KEY_SORT, this.sort);
         this.loaderManager.restartLoader(Globals.LOADER_ID_HATCHLIST_HATCHTABLE, b, this.rvAdapter);
     }
 
-    private void setupFab(){
+    private void setupFab() {
         this.fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(HatchListFragment.this.createHatchFrag == null){
-                    if(HatchListFragment.this.clickListener != null){
-                        HatchListFragment.this.clickListener.onCreateHatch();
-                    }
+                if (HatchListFragment.this.clickListener != null) {
+                    HatchListFragment.this.clickListener.onCreateHatch();
                 }
             }
         });

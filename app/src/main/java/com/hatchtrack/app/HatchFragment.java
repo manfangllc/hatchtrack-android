@@ -65,7 +65,7 @@ public class HatchFragment extends Fragment implements
     private FloatingActionButton fab;
     private CoordinatorLayout mainCoordinator;
     private LoaderManager loaderManager;
-    private int hatchId;
+    private long hatchId;
     private int speciesId;
     int[] speciesIds = new int[0];
     String[] speciesNames = new String[0];
@@ -95,6 +95,7 @@ public class HatchFragment extends Fragment implements
     private EditText nameText;
     private TextView speciesNameValue;
     private CheckBox notificationsCheckbox;
+    private int hatchStatus;
 
     public HatchFragment() {
         this.uiHandler = new Handler();
@@ -114,7 +115,7 @@ public class HatchFragment extends Fragment implements
     public void setArguments(@Nullable Bundle args) {
         super.setArguments(args);
         if(args != null){
-            this.hatchId = args.getInt(Globals.KEY_DBID, 0);
+            this.hatchId = args.getLong(Globals.KEY_DBID, 0);
             if(this.loaderManager != null){
                 this.loaderManager.restartLoader(Globals.LOADER_ID_HATCH_HATCHTABLE, null, this);
                 this.loaderManager.restartLoader(Globals.LOADER_ID_HATCH_PEEPTABLE, null, this);
@@ -232,7 +233,7 @@ public class HatchFragment extends Fragment implements
                         j++;
                     }
                     Bundle b = new Bundle();
-                    b.putInt(Globals.KEY_HATCH_ID, HatchFragment.this.hatchId);
+                    b.putLong(Globals.KEY_HATCH_ID, HatchFragment.this.hatchId);
                     b.putIntArray(Globals.KEY_PEEP_IDS, pIds);
                     b.putStringArray(Globals.KEY_PEEP_NAMES, pNames);
                     b.putBooleanArray(Globals.KEY_PEEP_IN_HATCH, pCheck);
@@ -482,6 +483,15 @@ public class HatchFragment extends Fragment implements
                 if(cursor.moveToFirst()) {
                     this.name = cursor.getString(cursor.getColumnIndex(HatchTable.NAME));
                     int sid = cursor.getInt(cursor.getColumnIndex(HatchTable.SPECIES_ID));
+                    long startTime = cursor.getLong(cursor.getColumnIndex(HatchTable.START));
+                    long endTime = cursor.getLong(cursor.getColumnIndex(HatchTable.END));
+                    if(startTime == 0L){
+                        this.hatchStatus = Globals.STATUS_HATCH_UNSTARTED;
+                    } else if(startTime < endTime){
+                        this.hatchStatus = Globals.STATUS_HATCH_STARTED;
+                    } else {
+                        this.hatchStatus = Globals.STATUS_HATCH_FINISHED;
+                    }
                     if(sid != this.speciesId) {
                         this.speciesId = sid;
                         if(this.speciesId < this.speciesDaysArray.length) {
@@ -752,17 +762,18 @@ public class HatchFragment extends Fragment implements
     }
 
     private void setupFab(){
-        this.fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-            }
-        });
-        this.fab.show();
-        Snackbar.make(
-                this.mainCoordinator,
-                Html.fromHtml("<font color=\"#ffff00\">" + this.getResources().getText(R.string.snackbar_fab_hatch) + "</font>"),
-                Snackbar.LENGTH_LONG
-        ).show();
+//        this.fab.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//            }
+//        });
+//        this.fab.show();
+//        Snackbar.make(
+//                this.mainCoordinator,
+//                Html.fromHtml("<font color=\"#ffff00\">" + this.getResources().getText(R.string.snackbar_fab_hatch) + "</font>"),
+//                Snackbar.LENGTH_LONG
+//        ).show();
+        this.fab.hide();
     }
 
     private boolean checkCalendarPermission(){

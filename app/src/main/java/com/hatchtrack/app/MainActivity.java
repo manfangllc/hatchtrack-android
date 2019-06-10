@@ -40,8 +40,7 @@ public class MainActivity
         NavigationView.OnNavigationItemSelectedListener,
         PeepListFragment.PeepClickListener,
         HatchListFragment.HatchClickListener,
-        DialogChoosePeeps.ChoosePeepsDialogListener,
-        CreateHatchFragment.CreateHatchListener
+        DialogChoosePeeps.ChoosePeepsDialogListener
 {
 
     private static final String TAG = MainActivity.class.getSimpleName();
@@ -57,7 +56,6 @@ public class MainActivity
 
     private HatchListFragment hatchListFrag;
     private HatchFragment hatchFrag;
-    private CreateHatchFragment createHatchFrag;
     private PeepListFragment peepListFrag;
     private PeepFragment peepFrag;
     private WebFragment webFrag;
@@ -177,7 +175,7 @@ public class MainActivity
         else if (id == R.id.action_hatches) {
             Random random = new Random(System.currentTimeMillis());
             for(int i = 1; i < 6; i++){
-                Data.createHatch(this, "Hatch Name " + i, random.nextInt(20), random.nextInt(5));
+                Data.createHatch(this, "Hatch Name " + i, random.nextInt(20), random.nextInt(5), null);
             }
             Log.i(TAG, Data.dumpTable(this, HatchtrackProvider.HATCH_URI));
             return true;
@@ -303,16 +301,16 @@ public class MainActivity
     @Override
     public void onHatchClicked(int dbId) {
         Log.i(TAG, "MainActivity.onHatchClicked(): dbId=" + dbId);
+        this.openHatch(dbId);
+    }
+
+    private void openHatch(long dbId){
         if(this.hatchFrag == null){
             this.hatchFrag = HatchFragment.newInstance(this.toolbarLayout, this.appBarLayout, this.imageView, this.fab, this.mainCoordinator);
         }
-//        Bundle args = new Bundle();
-//        args.putInt(Globals.KEY_DBID, dbId);
-//        this.showScreen(this.hatchFrag, R.string.title_hatch_default, R.drawable.hatch_1, args, true, true, true);
-
         if(!this.hatchFrag.isAdded()) {
             Bundle b = new Bundle();
-            b.putInt(Globals.KEY_DBID, dbId);
+            b.putLong(Globals.KEY_DBID, dbId);
             this.hatchFrag.setArguments(b);
             this.hatchFrag.setExitTransition(new Slide(Gravity.LEFT));
             getSupportFragmentManager().beginTransaction()
@@ -327,32 +325,22 @@ public class MainActivity
     @Override
     public void onCreateHatch() {
         Log.i(TAG, "MainActivity.onCreateHatch()");
-        this.createHatchFrag = CreateHatchFragment.newInstance(
-                this,
-                this.toolbarLayout,
-                this.appBarLayout,
-                this.imageView,
-                this.fab,
-                this.mainCoordinator
-        );
-        if(!this.createHatchFrag.isAdded()) {
-            this.createHatchFrag.setExitTransition(new Slide(Gravity.LEFT));
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.fragContainer, this.createHatchFrag)
-                    .addToBackStack(null)
-                    .commit();
-            this.currentFragment = this.createHatchFrag;
-            this.showBackButton(true);
-        }
+        Data.createHatch(this, "New Hatch", 0, 0, new Data.NewHatchListener() {
+            @Override
+            public void onNewHatch(long dbId) {
+                MainActivity.this.openHatch(dbId);
+            }
+        });
     }
 
-    @Override
-    public void onHatchCreated(int species, int eggCount, String hatchName) {
-        Log.i(TAG, "onHatchCreated(): species=" + species + ", eggCount=" + eggCount + ", name=" + hatchName);
-        this.getSupportFragmentManager().popBackStack();
-        this.showBackButton(false);
-        Data.createHatch(this, hatchName, eggCount, species);
-    }
+//    @Override
+//    public void onHatchCreated(int species, int eggCount, String hatchName) {
+//        Log.i(TAG, "onHatchCreated(): species=" + species + ", eggCount=" + eggCount + ", name=" + hatchName);
+//        this.getSupportFragmentManager().popBackStack();
+//        this.showBackButton(false);
+//        Data.createHatch(this, hatchName, eggCount, species);
+//    }
+
 
     @Override
     public void onPeepsChosen(int hatchId, List<Integer> peepIds) {

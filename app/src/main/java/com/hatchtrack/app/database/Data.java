@@ -1,10 +1,13 @@
 package com.hatchtrack.app.database;
 
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
+import android.os.Handler;
+import android.os.HandlerThread;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -14,6 +17,18 @@ import java.util.UUID;
 public class Data {
 
     private static final String TAG = Data.class.getSimpleName();
+
+    private static Handler dbHandler;
+
+    static {
+        HandlerThread ht = new HandlerThread(TAG);
+        ht.start();
+        Data.dbHandler = new Handler(ht.getLooper());
+    }
+
+    public interface NewHatchListener {
+        void onNewHatch(long dbId);
+    }
 
     private Data(){
     }
@@ -25,7 +40,7 @@ public class Data {
      * @param id database row id
      * @return a string representation of all the columns in the given row
      */
-    public static StringBuilder getRowText(Context context, Uri uri, int id){
+    public static StringBuilder getRowText(Context context, Uri uri, long id){
         StringBuilder sb = new StringBuilder();
         Cursor c = context.getContentResolver().query(uri,null, "_id = " + id, null, null);
         if(c != null){
@@ -279,20 +294,41 @@ public class Data {
      * @param species species id
      * @return true if the hatch was created successfully
      */
-    public static boolean createHatch(Context context, String name, int eggCount, int species){
-        long now = System.currentTimeMillis();
-        ContentValues cv = new ContentValues();
-        cv.put(HatchTable.NAME, name);
-        cv.put(HatchTable.UUID, UUID.randomUUID().toString());
-        cv.put(HatchTable.SPECIES_ID, species);
-        cv.put(HatchTable.EGG_COUNT, eggCount);
-        cv.put(HatchTable.CHICK_COUNT, 0);
-        cv.put(HatchTable.CREATED, now);
-        cv.put(HatchTable.LAST_SYNCED, 0);
-        cv.put(HatchTable.LAST_MODIFIED, now);
-        cv.put(HatchTable.START, 0);
-        cv.put(HatchTable.END, 0);
-        return(context.getContentResolver().insert(HatchtrackProvider.HATCH_URI, cv) != null);
+    public static void createHatch(final Context context, final String name, final int eggCount, final int species, final NewHatchListener listener){
+        Data.dbHandler.post(new Runnable(){
+            @Override
+            public void run() {
+                long now = System.currentTimeMillis();
+                ContentValues cv = new ContentValues();
+                cv.put(HatchTable.NAME, name);
+                cv.put(HatchTable.UUID, UUID.randomUUID().toString());
+                cv.put(HatchTable.SPECIES_ID, species);
+                cv.put(HatchTable.EGG_COUNT, eggCount);
+                cv.put(HatchTable.CHICK_COUNT, 0);
+                cv.put(HatchTable.CREATED, now);
+                cv.put(HatchTable.LAST_SYNCED, 0);
+                cv.put(HatchTable.LAST_MODIFIED, now);
+                cv.put(HatchTable.START, 0);
+                cv.put(HatchTable.END, 0);
+                Uri uri = context.getContentResolver().insert(HatchtrackProvider.HATCH_URI, cv);
+                if(listener != null){
+                    listener.onNewHatch(ContentUris.parseId(uri));
+                }
+            }
+        });
+//        long now = System.currentTimeMillis();
+//        ContentValues cv = new ContentValues();
+//        cv.put(HatchTable.NAME, name);
+//        cv.put(HatchTable.UUID, UUID.randomUUID().toString());
+//        cv.put(HatchTable.SPECIES_ID, species);
+//        cv.put(HatchTable.EGG_COUNT, eggCount);
+//        cv.put(HatchTable.CHICK_COUNT, 0);
+//        cv.put(HatchTable.CREATED, now);
+//        cv.put(HatchTable.LAST_SYNCED, 0);
+//        cv.put(HatchTable.LAST_MODIFIED, now);
+//        cv.put(HatchTable.START, 0);
+//        cv.put(HatchTable.END, 0);
+//        return(context.getContentResolver().insert(HatchtrackProvider.HATCH_URI, cv) != null);
     }
 
     /**
@@ -404,7 +440,7 @@ public class Data {
      * @param hatchId
      * @return the number of days of incubation or 0 if there's no species associated with the given hatch
      */
-    public static float getSpeciesDaysFromHatch(Context context, int hatchId){
+    public static float getSpeciesDaysFromHatch(Context context, long hatchId){
         float result = 0;
         Cursor c = context.getContentResolver().query(HatchtrackProvider.HATCH_URI,
                 new String[]{HatchTable.SPECIES_ID},
@@ -427,7 +463,7 @@ public class Data {
      * @param speciesId species for hatch
      * @return number of hatches updated. should be 1 if the hatch exists, else 0
      */
-    public static int setHatchSpecies(Context context, int hatchId, int speciesId){
+    public static int setHatchSpecies(Context context, long hatchId, int speciesId){
         ContentValues cv = new ContentValues();
         cv.put(HatchTable.SPECIES_ID, speciesId);
         cv.put(HatchTable.LAST_MODIFIED, System.currentTimeMillis());
@@ -441,7 +477,7 @@ public class Data {
      * @param name hatch name
      * @return number of hatches updated. should be 1 if the hatch exists, else 0
      */
-    public static int setHatchName(Context context, int hatchId, String name){
+    public static int setHatchName(Context context, long hatchId, String name){
         ContentValues cv = new ContentValues();
         cv.put(HatchTable.NAME, name);
         cv.put(HatchTable.LAST_MODIFIED, System.currentTimeMillis());
