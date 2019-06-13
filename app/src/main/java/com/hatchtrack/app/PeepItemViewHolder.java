@@ -23,7 +23,7 @@ public class PeepItemViewHolder extends RecyclerView.ViewHolder {
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    PeepItemViewHolder.this.clickListener.OnPeepClicked(PeepItemViewHolder.this.dbId);
+                    PeepItemViewHolder.this.clickListener.onPeepClicked(PeepItemViewHolder.this.dbId);
                 }
             });
         }

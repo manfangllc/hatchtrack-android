@@ -3,6 +3,8 @@ package com.hatchtrack.app;
 import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -15,6 +17,8 @@ import android.webkit.WebViewClient;
 public class WebFragment extends Fragment {
     private static final String TAG = HatchListFragment.class.getSimpleName();
 
+    private FloatingActionButton fab;
+    private CoordinatorLayout mainCoordinator;
     private WebView webView;
     private String url;
 
@@ -22,8 +26,10 @@ public class WebFragment extends Fragment {
         Log.i(TAG, "WebFragment(): new");
     }
 
-    public static WebFragment newInstance() {
+    public static WebFragment newInstance(FloatingActionButton fab, CoordinatorLayout mc) {
         WebFragment fragment = new WebFragment();
+        fragment.fab = fab;
+        fragment.mainCoordinator = mc;
         return(fragment);
     }
 
@@ -52,5 +58,13 @@ public class WebFragment extends Fragment {
             this.webView.loadUrl(this.url);
         }
         return(rootView);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if(this.fab != null){
+            this.fab.hide();
+        }
     }
 }

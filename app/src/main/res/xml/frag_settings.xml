@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory android:title="Preference category">
+
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="switch_preference_1"
+            android:summary="On for English; off for metric"
+            android:title="Units" />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/cat_info">
+        <Preference
+            android:key="privacyKey"
+            android:summary="@string/pref_privacy_summary"
+            android:title="@string/pref_privacy_title">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="http://www.emirac.net/lifx/chromania_privacy_policy.html" />
+        </Preference>
+        <Preference
+            android:key="versionKey"
+            android:summary="Version: e^(i*pi) + 1"
+            android:title="Version">
+        </Preference>
+    </PreferenceCategory>
+</PreferenceScreen>

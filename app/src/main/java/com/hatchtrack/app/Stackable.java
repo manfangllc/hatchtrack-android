@@ -1,5 +1,5 @@
 package com.hatchtrack.app;
 
-public interface Braggable {
+public interface Stackable {
     void onVisible();
 }

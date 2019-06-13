@@ -1,10 +1,13 @@
 package com.hatchtrack.app;
 
 import android.content.ContentValues;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -22,7 +25,6 @@ import android.view.View;
 import android.widget.ImageView;
 
 import com.hatchtrack.app.database.Data;
-import com.hatchtrack.app.database.HatchTable;
 import com.hatchtrack.app.database.HatchtrackProvider;
 import com.hatchtrack.app.database.PeepTable;
 import com.hatchtrack.app.database.SpeciesTable;
@@ -38,7 +40,8 @@ public class MainActivity
         NavigationView.OnNavigationItemSelectedListener,
         PeepListFragment.PeepClickListener,
         HatchListFragment.HatchClickListener,
-        DialogChoosePeeps.ChoosePeepsDialogListener{
+        DialogChoosePeeps.ChoosePeepsDialogListener
+{
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
@@ -47,6 +50,8 @@ public class MainActivity
     private AppBarLayout appBarLayout;
     private ImageView imageView;
     private DrawerLayout drawerLayout;
+    private FloatingActionButton fab;
+    private CoordinatorLayout mainCoordinator;
     private boolean toolBarNavigationListenerIsRegistered;
 
     private HatchListFragment hatchListFrag;
@@ -54,6 +59,8 @@ public class MainActivity
     private PeepListFragment peepListFrag;
     private PeepFragment peepFrag;
     private WebFragment webFrag;
+    private FeedbackFragment feedbackFrag;
+    private Fragment currentFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,11 +71,28 @@ public class MainActivity
         this.appBarLayout = this.findViewById(R.id.appBarId);
         this.imageView = this.findViewById(R.id.imageView);
         this.drawerLayout = findViewById(R.id.drawerLayout);
+        this.fab = findViewById(R.id.fab);
+        this.mainCoordinator = findViewById(R.id.mainCoordinator);
         // stuff to make nutty collapsible toolbar work
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         // stuff to make drawer work
-        this.drawerToggle = new ActionBarDrawerToggle(this, this.drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        this.drawerToggle = new ActionBarDrawerToggle(this, this.drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close){
+            /** Called when a drawer has settled in a completely closed state. */
+            public void onDrawerClosed(View view) {
+                super.onDrawerClosed(view);
+                // tell the current frag that it's active
+                if(MainActivity.this.currentFragment != null){
+                    if(MainActivity.this.currentFragment instanceof Stackable){
+                        ((Stackable) MainActivity.this.currentFragment).onVisible();
+                    }
+                }
+            }
+            /** Called when a drawer has settled in a completely open state. */
+            public void onDrawerOpened(View drawerView) {
+                super.onDrawerOpened(drawerView);
+            }
+        };
         this.drawerLayout.addDrawerListener(this.drawerToggle);
         this.drawerToggle.syncState();
         NavigationView navigationView = findViewById(R.id.navView);
@@ -80,9 +104,9 @@ public class MainActivity
             public void onBackStackChanged() {
                 Fragment f = getSupportFragmentManager().findFragmentById(R.id.fragContainer);
                 try {
-                    ((Braggable) f).onVisible();
+                    ((Stackable) f).onVisible();
                 } catch (ClassCastException e){
-                    Log.i(TAG, f.toString() + " fragment doesn't implement Braggable");
+                    Log.i(TAG, f.toString() + " fragment doesn't implement Stackable");
                 }
             }
         });
@@ -100,12 +124,10 @@ public class MainActivity
         }
         // create and display the default fragment
         if(this.hatchListFrag == null){
-            this.hatchListFrag = HatchListFragment.newInstance(this, this.toolbarLayout, this.appBarLayout, this.imageView);
+            this.hatchListFrag = HatchListFragment.newInstance(this, this.toolbarLayout, this.appBarLayout, this.imageView, this.fab, this.mainCoordinator);
         }
         this.clearBackStack();
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.fragContainer, this.hatchListFrag)
-                .commit();
+        this.showScreen(this.hatchListFrag, R.string.menu_hatches, R.drawable.hatch_1, null, true, false, false);
         // debug: dump the database
         Log.i(TAG, Data.dumpTable(this, HatchtrackProvider.SPECIES_URI));
         Log.i(TAG, Data.dumpTable(this, HatchtrackProvider.HATCH_URI));
@@ -146,11 +168,6 @@ public class MainActivity
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-
-//        if(this.drawerToggle.onOptionsItemSelected(item)){
-//            return(true);
-//        }
-
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
@@ -158,19 +175,7 @@ public class MainActivity
         else if (id == R.id.action_hatches) {
             Random random = new Random(System.currentTimeMillis());
             for(int i = 1; i < 6; i++){
-                long now = System.currentTimeMillis();
-                ContentValues cv = new ContentValues();
-                cv.put(HatchTable.NAME, "Hatch Name " + i);
-                cv.put(HatchTable.SPECIES_ID, random.nextInt(5));
-                cv.put(HatchTable.CREATED, now);
-                int e = random.nextInt(20);
-                cv.put(HatchTable.EGG_COUNT, e);
-                cv.put(HatchTable.CHICK_COUNT, 0);
-                cv.put(HatchTable.START, 0);
-                cv.put(HatchTable.END, 0);
-                cv.put(HatchTable.LAST_SYNCED, 0);
-                cv.put(HatchTable.LAST_MODIFIED, now);
-                this.getContentResolver().insert(HatchtrackProvider.HATCH_URI, cv);
+                Data.createHatch(this, "Hatch Name " + i, random.nextInt(20), random.nextInt(5), null);
             }
             Log.i(TAG, Data.dumpTable(this, HatchtrackProvider.HATCH_URI));
             return true;
@@ -223,56 +228,62 @@ public class MainActivity
         int id = item.getItemId();
         if (id == R.id.navHatches) {
             if(this.hatchListFrag == null){
-                this.hatchListFrag = HatchListFragment.newInstance(this, this.toolbarLayout, this.appBarLayout, this.imageView);
+                this.hatchListFrag = HatchListFragment.newInstance(this, this.toolbarLayout, this.appBarLayout, this.imageView, this.fab, this.mainCoordinator);
             }
             this.clearBackStack();
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.fragContainer, this.hatchListFrag)
-                    .commit();
+            this.showScreen(this.hatchListFrag, R.string.menu_hatches, R.drawable.hatch_1, null, true, false, false);
         } else if (id == R.id.navPeeps) {
             if(this.peepListFrag == null){
-                this.peepListFrag = PeepListFragment.newInstance(this, this.toolbarLayout, this.appBarLayout, this.imageView);
+                this.peepListFrag = PeepListFragment.newInstance(this, this.toolbarLayout, this.appBarLayout, this.imageView, this.fab, this.mainCoordinator);
             }
             this.clearBackStack();
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.fragContainer, this.peepListFrag)
-                    .commit();
+            this.showScreen(this.peepListFrag, R.string.menu_peeps, R.drawable.hatch_1, null, true, false, false);
         } else if (id == R.id.navBuy) {
             if(this.webFrag == null){
-                this.webFrag = WebFragment.newInstance();
+                this.webFrag = WebFragment.newInstance(this.fab, this.mainCoordinator);
             }
-            this.toolbarLayout.setTitle("Buy Peeps");
-            this.imageView.setImageResource(R.drawable.logo_black);
-            this.appBarLayout.setExpanded(false);
-            Bundle b = new Bundle();
-            b.putString(Globals.KEY_URL, "http://www.hatchtrack.com");
-            this.webFrag.setArguments(b);
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.fragContainer, this.webFrag)
-                    .commit();
-        } else if (id == R.id.navPrivacy) {
+            Bundle args = new Bundle();
+            args.putString(Globals.KEY_URL, "http://www.hatchtrack.com");
+            this.showScreen(this.webFrag, R.string.menu_buy, R.drawable.logo_black, args, false, false, false);
+        } else if (id == R.id.navClassified) {
             if(this.webFrag == null){
-                this.webFrag = WebFragment.newInstance();
+                this.webFrag = WebFragment.newInstance(this.fab, this.mainCoordinator);
             }
-            this.toolbarLayout.setTitle("HatchTrack");
-            this.imageView.setImageResource(R.drawable.logo_black);
-            this.appBarLayout.setExpanded(false);
-            Bundle b = new Bundle();
-            b.putString(Globals.KEY_URL, "http://policies.google.com/privacy");
-            this.webFrag.setArguments(b);
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.fragContainer, this.webFrag)
-                    .commit();
+            Bundle args = new Bundle();
+            args.putString(Globals.KEY_URL, "http://classifieds.hatchtrack.com");
+            this.showScreen(this.webFrag, R.string.menu_classified, R.drawable.logo_black, args, false, false, false);
+        } else if (id == R.id.navForum) {
+            if(this.webFrag == null){
+                this.webFrag = WebFragment.newInstance(this.fab, this.mainCoordinator);
+            }
+            Bundle args = new Bundle();
+            args.putString(Globals.KEY_URL, "http://community.hatchtrack.com");
+            this.showScreen(this.webFrag, R.string.menu_forum, R.drawable.logo_black, args, false, false, false);
+        } else if (id == R.id.navHelp) {
+            if(this.webFrag == null){
+                this.webFrag = WebFragment.newInstance(this.fab, this.mainCoordinator);
+            }
+            Bundle args = new Bundle();
+            args.putString(Globals.KEY_URL, "http://learn.hatchtrack.com");
+            this.showScreen(this.webFrag, R.string.menu_learn, R.drawable.logo_black, args, false, false, false);
+        } else if (id == R.id.navFeedback) {
+            if(this.feedbackFrag == null){
+                this.feedbackFrag = FeedbackFragment.newInstance(this.toolbarLayout, this.appBarLayout);
+            }
+            this.showScreen(this.feedbackFrag, R.string.menu_feedback, R.drawable.logo_black, null, false, false, false);
+            this.fab.hide();
+        } else if (id == R.id.navSettings) {
+            this.startActivity(new Intent(this, SettingsActivity.class));
         }
         this.drawerLayout.closeDrawer(GravityCompat.START);
         return true;
     }
 
     @Override
-    public void OnPeepClicked(int dbId) {
-        Log.i(TAG, "MainActivity.OnPeepClicked(): dbId=" + dbId);
+    public void onPeepClicked(int dbId) {
+        Log.i(TAG, "MainActivity.onPeepClicked(): dbId=" + dbId);
         if(this.peepFrag == null){
-            this.peepFrag = PeepFragment.newInstance(this.toolbarLayout, this.appBarLayout, this.imageView);
+            this.peepFrag = PeepFragment.newInstance(this.toolbarLayout, this.appBarLayout, this.imageView, this.fab, this.mainCoordinator);
         }
         if(!this.peepFrag.isAdded()) {
             Bundle b = new Bundle();
@@ -282,6 +293,7 @@ public class MainActivity
                     .add(R.id.fragContainer, this.peepFrag)
                     .addToBackStack(null)
                     .commit();
+            this.currentFragment = this.peepFrag;
             this.showBackButton(true);
         }
     }
@@ -289,21 +301,51 @@ public class MainActivity
     @Override
     public void onHatchClicked(int dbId) {
         Log.i(TAG, "MainActivity.onHatchClicked(): dbId=" + dbId);
+        this.openHatch(dbId);
+    }
+
+    private void openHatch(long dbId){
         if(this.hatchFrag == null){
-            this.hatchFrag = HatchFragment.newInstance(this.toolbarLayout, this.appBarLayout, this.imageView);
+            this.hatchFrag = HatchFragment.newInstance(this.toolbarLayout, this.appBarLayout, this.imageView, this.fab, this.mainCoordinator);
         }
         if(!this.hatchFrag.isAdded()) {
             Bundle b = new Bundle();
-            b.putInt(Globals.KEY_DBID, dbId);
+            b.putLong(Globals.KEY_DBID, dbId);
             this.hatchFrag.setArguments(b);
-//            this.hatchFrag.setEnterTransition(new Fade());
             this.hatchFrag.setExitTransition(new Slide(Gravity.LEFT));
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.fragContainer, this.hatchFrag)
                     .addToBackStack(null)
                     .commit();
+            this.currentFragment = this.hatchFrag;
             this.showBackButton(true);
         }
+    }
+
+    @Override
+    public void onCreateHatch() {
+        Log.i(TAG, "MainActivity.onCreateHatch()");
+        Data.createHatch(this, "New Hatch", 0, 0, new Data.NewHatchListener() {
+            @Override
+            public void onNewHatch(long dbId) {
+                MainActivity.this.openHatch(dbId);
+            }
+        });
+    }
+
+//    @Override
+//    public void onHatchCreated(int species, int eggCount, String hatchName) {
+//        Log.i(TAG, "onHatchCreated(): species=" + species + ", eggCount=" + eggCount + ", name=" + hatchName);
+//        this.getSupportFragmentManager().popBackStack();
+//        this.showBackButton(false);
+//        Data.createHatch(this, hatchName, eggCount, species);
+//    }
+
+
+    @Override
+    public void onPeepsChosen(int hatchId, List<Integer> peepIds) {
+        Log.i(TAG, "onPeepsChosen(): hatchId=" + hatchId);
+        Data.setHatchPeeps(this, hatchId, peepIds, System.currentTimeMillis());
     }
 
     private void clearBackStack() {
@@ -352,14 +394,33 @@ public class MainActivity
         }
     }
 
-    @Override
-    public void onAttachFragment(Fragment fragment) {
-        super.onAttachFragment(fragment);
-    }
-
-    @Override
-    public void onPeepsChosen(int hatchId, List<Integer> peepIds) {
-        Log.i(TAG, "onPeepsChosen(): hatchId=" + hatchId);
-        Data.setHatchPeeps(this, hatchId, peepIds, System.currentTimeMillis());
+    private void showScreen(Fragment frag, int titleResource, int imageResource, Bundle args, boolean expanded, boolean backstack, boolean backbutton) {
+        if (!frag.isAdded()) {
+            this.toolbarLayout.setTitle(this.getResources().getString(titleResource));
+            this.imageView.setImageResource(imageResource);
+            this.appBarLayout.setExpanded(expanded);
+            if (args != null) {
+                frag.setArguments(args);
+            }
+            if (backstack) {
+                getSupportFragmentManager().beginTransaction()
+                        .add(R.id.fragContainer, frag)
+                        .addToBackStack(null)
+                        .commit();
+            } else {
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.fragContainer, frag)
+                        .commit();
+            }
+            this.currentFragment = frag;
+            this.showBackButton(backbutton);
+        } else {
+            this.toolbarLayout.setTitle(this.getResources().getString(titleResource));
+            this.imageView.setImageResource(imageResource);
+            this.appBarLayout.setExpanded(expanded);
+            if (args != null) {
+                frag.setArguments(args);
+            }
+        }
     }
 }

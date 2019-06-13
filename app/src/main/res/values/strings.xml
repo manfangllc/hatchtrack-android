@@ -7,6 +7,7 @@
     <string name="nav_header_desc">Navigation header</string>
     <string name="drawer_open">open drawer</string>
     <string name="drawer_close">close drawer</string>
+    <string name="action_save">SAVE</string>
     <string name="action_settings">Settings</string>
     <string name="action_select_all">select all</string>
     <string name="action_invert">invert selection</string>
@@ -16,13 +17,82 @@
     <string name="choose_peeps_positive">OK</string>
     <string name="choose_peeps_negative">Cancel</string>
     <string name="choose_species">Choose Species</string>
-    <string name="choose_species_negative">cancel</string>
+    <string name="choose_species_negative">Cancel</string>
+    <string name="egg_count">Egg Count</string>
+    <string name="egg_count_negative">Cancel</string>
+    <string name="egg_count_positive">OK</string>
+
+    <string name="neutral">Dismiss</string>
+
+    <string name="title_hatch_default">Unnamed Hatch</string>
+
+    <string name="title_feedback">App Feedback</string>
+    <string name="feedback_email_title">Email</string>
+    <string name="feedback_email_summary">Email your comments or suggestions.</string>
+    <string name="feedback_rate_title">Rate</string>
+    <string name="feedback_rate_summary">If you like it please rate this app!</string>
+
+    <string name="share_title">Share</string>
+    <string name="share_summary">Share this app with a friend.</string>
+    <string name="share_text">Let me recommend this app!</string>
+
+    <string name="cat_info">Info</string>
+    <string name="pref_privacy_title">Privacy Policy</string>
+    <string name="pref_privacy_summary">Read legal stuff where we say that we\'re not spying on you.</string>
+
+    <string name="title_hatches">Hatches</string>
+    <string name="title_createhatch">Create Hatch</string>
+    <string name="title_peeps">Peeps</string>
+
+    <string name="menu_hatches">Hatches</string>
+    <string name="menu_incubators">Incubators</string>
+    <string name="menu_peeps">Peeps</string>
+
+    <string name="menu_title_community">COMMUNITY</string>
+    <string name="menu_forum">Forum</string>
+    <string name="menu_classified">Hatching Eggs</string>
+    <string name="menu_buy">Get Peep</string>
+
+    <string name="menu_settings">Settings</string>
+    <string name="menu_learn">Help</string>
+    <string name="menu_feedback">Feedback</string>
+
+    <string name="menu_privacy">Privacy Policy</string>
+
+    <string name="snackbar_fab_hatchlist">Use this button to create a new hatch.</string>
+    <string name="snackbar_fab_createhatch">Use this button to save the new hatch.</string>
+    <string name="snackbar_fab_hatch">Use this button to modify the hatch.</string>
 
     <string name="action_new_hatch">Create A Hatch</string>
 
     <string name="hint_hatch_name">my new hatch-name</string>
     <string name="species_hint">choose species</string>
     <string name="egg_count_hint">set egg count</string>
+    <string name="title_buypeeps">Get Peep</string>
+
+    <string name="status_label">Hatch Status</string>
+    <string name="status_intro">Setup hatch info before starting.</string>
+    <string name="start_hatch_button_label">Start Hatch</string>
+    <string name="end_hatch_button_label">End Hatch</string>
+    <string name="hatch_name_label">Hatch Name</string>
+    <string name="hatch_name_intro">Touch to set or change hatch name.</string>
+    <string name="egg_count_label">Egg Count</string>
+    <string name="egg_count_intro">Touch to set or change number of eggs in hatch.</string>
+    <string name="egg_count_label_number">number of eggs:</string>
+    <string name="species_label">Species / Breed</string>
+    <string name="species_intro">Touch to set or change species.</string>
+    <string name="species_label_name">name:</string>
+    <string name="species_label_days">days:</string>
+    <string name="time_label">Time</string>
+    <string name="peeps_label">Peeps</string>
+    <string name="eggs_label">Eggs</string>
+    <string name="reminders_title">Calendar Reminders</string>
+    <string name="turn_reminders_checkbox">Turn reminders</string>
+
+    <string name="calendar_permission_text">HatchTrack needs this permission to read and write the calendar which it uses to notify you about hatch events.
+        \n\HatchTrack does not transmit or save any of your personal calendar information. It only uses the calendar to remind you about your hatches.
+        \n\nYou can revoke this permission at any time in your phone\'s App Settings.</string>
+    <string name="calendar_permission_title">Calendar Permissions</string>
 
     <string-array name="selection_choices">
         <item>All</item>

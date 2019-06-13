@@ -21,7 +21,7 @@ public class ChooseSpeciesView extends RecyclerView {
     private static final String TAG = ChooseSpeciesView.class.getSimpleName();
 
     public interface ChooseSpeciesListener {
-        void onSpeciesChosen(int speciesId);
+        void onSpeciesChosen(int speciesId, String name, float days);
     }
 
     private int speciesId;
@@ -42,7 +42,7 @@ public class ChooseSpeciesView extends RecyclerView {
         public SpeciesViewHolder(View itemView) {
             super(itemView);
             this.imageView = itemView.findViewById(R.id.speciesImage);
-            this.textName = itemView.findViewById(R.id.speciesName);
+            this.textName = itemView.findViewById(R.id.speciesIntro);
             this.textDays = itemView.findViewById(R.id.speciesDays);
             this.view = itemView;
         }
@@ -51,7 +51,7 @@ public class ChooseSpeciesView extends RecyclerView {
             Log.i(TAG, "onClick(): view=" + v.toString() + ", position=" + this.position);
             ChooseSpeciesView.this.speciesId = ChooseSpeciesView.this.speciesIds[this.position];
             if(ChooseSpeciesView.this.listener != null) {
-                ChooseSpeciesView.this.listener.onSpeciesChosen(ChooseSpeciesView.this.speciesId);
+                ChooseSpeciesView.this.listener.onSpeciesChosen(ChooseSpeciesView.this.speciesId, ChooseSpeciesView.this.speciesNames[this.position], ChooseSpeciesView.this.speciesDays[this.position]);
             }
         }
     }

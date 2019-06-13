@@ -2,10 +2,13 @@
 <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mainCoordinator"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity"
     tools:ignore="HardcodedText">
+
+    <include layout="@layout/content_main" />
 
     <android.support.design.widget.AppBarLayout
         android:id="@+id/appBarId"
@@ -50,9 +53,10 @@
                     android:fitsSystemWindows="true"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintLeft_toLeftOf="parent"
-                    app:layout_constraintRight_toRightOf="parent"></View>
+                    app:layout_constraintRight_toRightOf="parent" />
             </android.support.constraint.ConstraintLayout>
 
+            <!-- android:background="#77000000" -->
             <android.support.v7.widget.Toolbar
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
@@ -61,10 +65,18 @@
                 app:layout_collapseMode="pin"
                 app:layout_scrollFlags="scroll|enterAlways"
                 app:popupTheme="@style/AppTheme.PopupOverlay" />
+
         </android.support.design.widget.CollapsingToolbarLayout>
     </android.support.design.widget.AppBarLayout>
 
-    <include layout="@layout/content_main" />
-
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end|bottom"
+        android:layout_margin="@dimen/fab_margin"
+        android:src="@drawable/plus_64x64_black"
+        android:visibility="visible"
+        app:backgroundTint="@color/windowBackground" />
 
 </android.support.design.widget.CoordinatorLayout>

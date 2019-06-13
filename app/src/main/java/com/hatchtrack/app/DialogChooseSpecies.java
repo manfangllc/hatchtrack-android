@@ -25,6 +25,11 @@ public class DialogChooseSpecies extends DialogFragment implements ChooseSpecies
     private int[] speciesIds = new int[0];
     private Map<Integer, String> speciesPicMap = new HashMap<>();
     private Dialog dialog;
+    private ChooseSpeciesView.ChooseSpeciesListener relayListener;
+
+    void setOnSpeciesListener(ChooseSpeciesView.ChooseSpeciesListener listener){
+        this.relayListener = listener;
+    }
 
     @Override
     public void setArguments(@Nullable Bundle args) {
@@ -67,9 +72,14 @@ public class DialogChooseSpecies extends DialogFragment implements ChooseSpecies
     }
 
     @Override
-    public void onSpeciesChosen(int speciesId) {
+    public void onSpeciesChosen(int speciesId, String speciesName, float speciesDays) {
         Log.i(TAG, "onSpeciesChosen(): hatchId=" + hatchId + ", speciesId=" + speciesId);
-        Data.setHatchSpecies(this.getContext(), this.hatchId, speciesId);
+        if(this.relayListener != null){
+            this.relayListener.onSpeciesChosen(speciesId, speciesName, speciesDays);
+        }
+        if(this.hatchId > 0) {
+            Data.setHatchSpecies(this.getContext(), this.hatchId, speciesId);
+        }
         this.dialog.dismiss();
     }
 

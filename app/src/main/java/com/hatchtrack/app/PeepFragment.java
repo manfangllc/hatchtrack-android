@@ -7,6 +7,8 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -31,6 +33,8 @@ public class PeepFragment extends Fragment  implements LoaderManager.LoaderCallb
     private CollapsingToolbarLayout toolbarLayout;
     private AppBarLayout appBarLayout;
     private ImageView imageView;
+    private FloatingActionButton fab;
+    private CoordinatorLayout mainCoordinator;
 
     LoaderManager loaderManager;
     private int dbId;
@@ -42,11 +46,13 @@ public class PeepFragment extends Fragment  implements LoaderManager.LoaderCallb
     public PeepFragment() {
     }
 
-    public static PeepFragment newInstance(CollapsingToolbarLayout ctl, AppBarLayout abl, ImageView iv) {
+    public static PeepFragment newInstance(CollapsingToolbarLayout ctl, AppBarLayout abl, ImageView iv, FloatingActionButton fab, CoordinatorLayout mc) {
         PeepFragment fragment = new PeepFragment();
         fragment.toolbarLayout = ctl;
         fragment.appBarLayout = abl;
         fragment.imageView = iv;
+        fragment.fab = fab;
+        fragment.mainCoordinator = mc;
         return(fragment);
     }
 

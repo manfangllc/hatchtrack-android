@@ -1,18 +1,34 @@
 package com.hatchtrack.app.database;
 
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
+import android.os.Handler;
+import android.os.HandlerThread;
 import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class Data {
 
     private static final String TAG = Data.class.getSimpleName();
+
+    private static Handler dbHandler;
+
+    static {
+        HandlerThread ht = new HandlerThread(TAG);
+        ht.start();
+        Data.dbHandler = new Handler(ht.getLooper());
+    }
+
+    public interface NewHatchListener {
+        void onNewHatch(long dbId);
+    }
 
     private Data(){
     }
@@ -24,7 +40,7 @@ public class Data {
      * @param id database row id
      * @return a string representation of all the columns in the given row
      */
-    public static StringBuilder getRowText(Context context, Uri uri, int id){
+    public static StringBuilder getRowText(Context context, Uri uri, long id){
         StringBuilder sb = new StringBuilder();
         Cursor c = context.getContentResolver().query(uri,null, "_id = " + id, null, null);
         if(c != null){
@@ -88,7 +104,7 @@ public class Data {
     }
 
     /**
-     * Writes all the rows of a given cursor to a string delimeted by newlines
+     * Writes all the rows of a given cursor to a string delimited by newlines
      *
      * @param cursor app context
      * @param sb
@@ -143,7 +159,7 @@ public class Data {
                 Data.removePeepFromHatch(context, hatchId, hatchPeeps.get(i), time);
             }
         }
-        // if the peepIds list has a peep which is not in the hatch add it to the hatch
+        // if the peepIds list has a peep which is not in this hatch add it to this hatch
         for (int i = 0; i < peepIds.size(); i++) {
             if (!hatchPeeps.contains(peepIds.get(i))) {
                 Data.addPeepToHatch(context, hatchId, peepIds.get(i), time);
@@ -152,7 +168,7 @@ public class Data {
     }
 
     /**
-     * Removes one peep from a hatch.
+     * Removes one peep from a hatch
      *
      * @param context the app context
      * @param hatchId
@@ -179,7 +195,7 @@ public class Data {
     }
 
     /**
-     *  Adds one peep to a hatch.
+     *  Adds one peep to a hatch
      *
      * @param context app context
      * @param hatchId
@@ -203,7 +219,7 @@ public class Data {
     }
 
     /**
-     * Sets a hatch's last-modified timestamp.
+     * Sets a hatch's last-modified timestamp
      *
      * @param context app context
      * @param hatchId
@@ -218,7 +234,7 @@ public class Data {
     }
 
     /**
-     * Returns a hatchId given a peepId. (Any peep can only be in one hatch at a time.)
+     * Returns a hatchId given a peepId (Any peep can only be in only one hatch at a time.)
      *
      * @param context app context
      * @param peepId
@@ -243,7 +259,7 @@ public class Data {
     }
 
     /**
-     * Returns a List of all the peeps in a given hatch.
+     * Returns a List of all the peeps in a given hatch
      *
      * @param context app context
      * @param hatchId
@@ -270,7 +286,53 @@ public class Data {
     }
 
     /**
-     * Removes all the peeps from the database.
+     * Creates a new hatch in the hatch table
+     *
+     * @param context the context
+     * @param name hatch name
+     * @param eggCount number of eggs in the hatch
+     * @param species species id
+     * @return true if the hatch was created successfully
+     */
+    public static void createHatch(final Context context, final String name, final int eggCount, final int species, final NewHatchListener listener){
+        Data.dbHandler.post(new Runnable(){
+            @Override
+            public void run() {
+                long now = System.currentTimeMillis();
+                ContentValues cv = new ContentValues();
+                cv.put(HatchTable.NAME, name);
+                cv.put(HatchTable.UUID, UUID.randomUUID().toString());
+                cv.put(HatchTable.SPECIES_ID, species);
+                cv.put(HatchTable.EGG_COUNT, eggCount);
+                cv.put(HatchTable.CHICK_COUNT, 0);
+                cv.put(HatchTable.CREATED, now);
+                cv.put(HatchTable.LAST_SYNCED, 0);
+                cv.put(HatchTable.LAST_MODIFIED, now);
+                cv.put(HatchTable.START, 0);
+                cv.put(HatchTable.END, 0);
+                Uri uri = context.getContentResolver().insert(HatchtrackProvider.HATCH_URI, cv);
+                if(listener != null){
+                    listener.onNewHatch(ContentUris.parseId(uri));
+                }
+            }
+        });
+//        long now = System.currentTimeMillis();
+//        ContentValues cv = new ContentValues();
+//        cv.put(HatchTable.NAME, name);
+//        cv.put(HatchTable.UUID, UUID.randomUUID().toString());
+//        cv.put(HatchTable.SPECIES_ID, species);
+//        cv.put(HatchTable.EGG_COUNT, eggCount);
+//        cv.put(HatchTable.CHICK_COUNT, 0);
+//        cv.put(HatchTable.CREATED, now);
+//        cv.put(HatchTable.LAST_SYNCED, 0);
+//        cv.put(HatchTable.LAST_MODIFIED, now);
+//        cv.put(HatchTable.START, 0);
+//        cv.put(HatchTable.END, 0);
+//        return(context.getContentResolver().insert(HatchtrackProvider.HATCH_URI, cv) != null);
+    }
+
+    /**
+     * Removes all the peeps from the database
      *
      * @param context app context
      */
@@ -294,8 +356,8 @@ public class Data {
     }
 
     /**
-     * Removes the given peep from the database. Updates last-modified time for the peep's hatch if it exists.
-     *  Updates the HatchPeep table.
+     * Removes the given peep from the database. Updates last-modified time for the peep's hatch if it exists
+     *  Updates the HatchPeep table
      *
      * @param context app context
      * @param peepId
@@ -312,7 +374,7 @@ public class Data {
     }
 
     /**
-     * Removes all the hatches from the database.
+     * Removes all the hatches from the database
      *
      * @param context app context
      */
@@ -336,7 +398,7 @@ public class Data {
     }
 
     /**
-     * Removes the given hatch from the Hatch table. Updates the HatchPeep table.
+     * Removes the given hatch from the Hatch table. Updates the HatchPeep table
      *
      * @param context app context
      * @param hatchId
@@ -378,7 +440,7 @@ public class Data {
      * @param hatchId
      * @return the number of days of incubation or 0 if there's no species associated with the given hatch
      */
-    public static float getSpeciesDaysFromHatch(Context context, int hatchId){
+    public static float getSpeciesDaysFromHatch(Context context, long hatchId){
         float result = 0;
         Cursor c = context.getContentResolver().query(HatchtrackProvider.HATCH_URI,
                 new String[]{HatchTable.SPECIES_ID},
@@ -401,9 +463,23 @@ public class Data {
      * @param speciesId species for hatch
      * @return number of hatches updated. should be 1 if the hatch exists, else 0
      */
-    public static int setHatchSpecies(Context context, int hatchId, int speciesId){
+    public static int setHatchSpecies(Context context, long hatchId, int speciesId){
         ContentValues cv = new ContentValues();
         cv.put(HatchTable.SPECIES_ID, speciesId);
+        cv.put(HatchTable.LAST_MODIFIED, System.currentTimeMillis());
+        return(context.getContentResolver().update(HatchtrackProvider.HATCH_URI, cv, HatchTable.ID + " = " + hatchId, null));
+    }
+
+    /**
+     *
+     * @param context app context
+     * @param hatchId
+     * @param name hatch name
+     * @return number of hatches updated. should be 1 if the hatch exists, else 0
+     */
+    public static int setHatchName(Context context, long hatchId, String name){
+        ContentValues cv = new ContentValues();
+        cv.put(HatchTable.NAME, name);
         cv.put(HatchTable.LAST_MODIFIED, System.currentTimeMillis());
         return(context.getContentResolver().update(HatchtrackProvider.HATCH_URI, cv, HatchTable.ID + " = " + hatchId, null));
     }

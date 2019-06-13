@@ -1,26 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:showIn="navigation_view">
 
-    <group>
-        <item
-            android:id="@+id/navHatches"
-            android:title="Hatches" />
-        <item
-            android:id="@+id/navPeeps"
-            android:title="Peeps" />
-    </group>
+    <item
+        android:id="@+id/navHatches"
+        android:title="@string/menu_hatches" />
+    <item
+        android:id="@+id/navIncubators"
+        android:title="@string/menu_incubators" />
+    <item
+        android:id="@+id/navPeeps"
+        android:title="@string/menu_peeps" />
 
-    <item android:title="Communicate">
+    <item android:title="@string/menu_title_community">
         <menu>
             <item
-                android:id="@+id/navPrivacy"
-                android:title="Privacy Policy" />
+                android:id="@+id/navForum"
+                android:icon="@drawable/ic_action_forum"
+                android:title="@string/menu_forum" />
+            <item
+                android:id="@+id/navClassified"
+                android:icon="@drawable/ic_action_classifieds"
+                android:title="@string/menu_classified" />
             <item
                 android:id="@+id/navBuy"
-                android:title="Buy Peeps" />
+                android:icon="@drawable/ic_action_buy"
+                android:title="@string/menu_buy" />
         </menu>
     </item>
+
+    <group android:id="@+id/fehJustToGetDivider">
+        <item
+            android:id="@+id/navSettings"
+            android:icon="@drawable/ic_action_settings"
+            android:title="@string/menu_settings" />
+        <item
+            android:id="@+id/navFeedback"
+            android:icon="@drawable/ic_action_feedback"
+            android:title="@string/menu_feedback" />
+        <item
+            android:id="@+id/navHelp"
+            android:icon="@drawable/ic_action_help"
+            android:title="@string/menu_learn" />
+    </group>
+
 
 </menu>
