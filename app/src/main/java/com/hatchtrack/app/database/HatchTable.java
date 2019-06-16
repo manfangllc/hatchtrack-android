@@ -22,6 +22,7 @@ public class HatchTable {
     public static final String LAST_MODIFIED  = "LastModified";
     public static final String START          = "StartTime";
     public static final String END            = "EndTime";
+    public static final String HAS_TURN_REMINDERS = "HasTurnReminders";
 
     // Database creation SQL statement
     private static final String DATABASE_CREATE = "create table "
@@ -37,6 +38,7 @@ public class HatchTable {
             + LAST_SYNCED + " integer not null, "
             + LAST_MODIFIED + " integer not null, "
             + START + " integer not null, "
+            + HAS_TURN_REMINDERS + " integer not null, "
             + END + " integer not null "
             + ");";
 

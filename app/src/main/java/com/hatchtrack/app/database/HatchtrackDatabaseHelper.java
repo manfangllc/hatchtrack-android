@@ -8,7 +8,7 @@ public class HatchtrackDatabaseHelper extends SQLiteOpenHelper {
     private static final String   TAG = HatchtrackDatabaseHelper.class.getSimpleName();
 
     private static final String DATABASE_NAME    = "hatchtrack.db";
-    private static final int    DATABASE_VERSION = 16;
+    private static final int    DATABASE_VERSION = 17;
 
     HatchtrackDatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);

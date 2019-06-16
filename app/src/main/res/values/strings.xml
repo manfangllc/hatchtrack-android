@@ -93,6 +93,8 @@
         \n\HatchTrack does not transmit or save any of your personal calendar information. It only uses the calendar to remind you about your hatches.
         \n\nYou can revoke this permission at any time in your phone\'s App Settings.</string>
     <string name="calendar_permission_title">Calendar Permissions</string>
+    <string name="oops_title">Oops!</string>
+    <string name="need_species_text">Please set the species/breed before starting the hatch.</string>
 
     <string-array name="selection_choices">
         <item>All</item>

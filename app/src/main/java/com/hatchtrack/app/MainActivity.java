@@ -40,8 +40,7 @@ public class MainActivity
         NavigationView.OnNavigationItemSelectedListener,
         PeepListFragment.PeepClickListener,
         HatchListFragment.HatchClickListener,
-        DialogChoosePeeps.ChoosePeepsDialogListener
-{
+        DialogChoosePeeps.ChoosePeepsDialogListener, DialogEditText.EditTextListener {
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
@@ -175,7 +174,7 @@ public class MainActivity
         else if (id == R.id.action_hatches) {
             Random random = new Random(System.currentTimeMillis());
             for(int i = 1; i < 6; i++){
-                Data.createHatch(this, "Hatch Name " + i, random.nextInt(20), random.nextInt(5), null);
+                Data.createHatch(this, "Hatch Name " + i, random.nextInt(20), random.nextInt(5), false,null);
             }
             Log.i(TAG, Data.dumpTable(this, HatchtrackProvider.HATCH_URI));
             return true;
@@ -304,33 +303,55 @@ public class MainActivity
         this.openHatch(dbId);
     }
 
-    private void openHatch(long dbId){
-        if(this.hatchFrag == null){
-            this.hatchFrag = HatchFragment.newInstance(this.toolbarLayout, this.appBarLayout, this.imageView, this.fab, this.mainCoordinator);
-        }
-        if(!this.hatchFrag.isAdded()) {
-            Bundle b = new Bundle();
-            b.putLong(Globals.KEY_DBID, dbId);
-            this.hatchFrag.setArguments(b);
-            this.hatchFrag.setExitTransition(new Slide(Gravity.LEFT));
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.fragContainer, this.hatchFrag)
-                    .addToBackStack(null)
-                    .commit();
-            this.currentFragment = this.hatchFrag;
-            this.showBackButton(true);
-        }
+    private void openHatch(final long dbId){
+        this.runOnUiThread(new Runnable(){
+            @Override
+            public void run() {
+                if(MainActivity.this.hatchFrag == null){
+                    MainActivity.this.hatchFrag = HatchFragment.newInstance(MainActivity.this.toolbarLayout, MainActivity.this.appBarLayout, MainActivity.this.imageView, MainActivity.this.fab, MainActivity.this.mainCoordinator);
+                }
+                if(!MainActivity.this.hatchFrag.isAdded()) {
+                    Bundle b = new Bundle();
+                    b.putLong(Globals.KEY_DBID, dbId);
+                    MainActivity.this.hatchFrag.setArguments(b);
+                    MainActivity.this.hatchFrag.setExitTransition(new Slide(Gravity.LEFT));
+                    getSupportFragmentManager().beginTransaction()
+                            .add(R.id.fragContainer, MainActivity.this.hatchFrag)
+                            .addToBackStack(null)
+                            .commit();
+                    MainActivity.this.currentFragment = MainActivity.this.hatchFrag;
+                    MainActivity.this.showBackButton(true);
+                }
+            }
+        });
     }
+
+    private DialogEditText textDialog;
 
     @Override
     public void onCreateHatch() {
         Log.i(TAG, "MainActivity.onCreateHatch()");
-        Data.createHatch(this, "New Hatch", 0, 0, new Data.NewHatchListener() {
-            @Override
-            public void onNewHatch(long dbId) {
-                MainActivity.this.openHatch(dbId);
-            }
-        });
+        this.textDialog = new DialogEditText();
+        this.textDialog.setEditTextListener(this);
+        this.textDialog.setTitle("New Hatch Name");
+        this.textDialog.show(this.getSupportFragmentManager(), "textDialog");
+     }
+
+    @Override
+    public void onText(String text) {
+        Log.i(TAG, "MainActivity.onText(" + text + ")");
+        this.textDialog.dismiss();
+        this.textDialog = null;
+        if((text != null) && (text.length() > 0)){
+            Data.createHatch(this, text, 0, 0, false, new Data.NewHatchListener() {
+                @Override
+                public void onNewHatch(long dbId) {
+                    MainActivity.this.openHatch(dbId);
+                }
+            });
+        } else {
+            Log.i(TAG, "MainActivity.onText(): no name! skipping create! should show a dialog");
+        }
     }
 
 //    @Override

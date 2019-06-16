@@ -294,7 +294,7 @@ public class Data {
      * @param species species id
      * @return true if the hatch was created successfully
      */
-    public static void createHatch(final Context context, final String name, final int eggCount, final int species, final NewHatchListener listener){
+    public static void createHatch(final Context context, final String name, final int eggCount, final int species, final boolean turnReminders, final NewHatchListener listener){
         Data.dbHandler.post(new Runnable(){
             @Override
             public void run() {
@@ -309,6 +309,7 @@ public class Data {
                 cv.put(HatchTable.LAST_SYNCED, 0);
                 cv.put(HatchTable.LAST_MODIFIED, now);
                 cv.put(HatchTable.START, 0);
+                cv.put(HatchTable.HAS_TURN_REMINDERS, (turnReminders?1:0) );
                 cv.put(HatchTable.END, 0);
                 Uri uri = context.getContentResolver().insert(HatchtrackProvider.HATCH_URI, cv);
                 if(listener != null){
@@ -480,6 +481,20 @@ public class Data {
     public static int setHatchName(Context context, long hatchId, String name){
         ContentValues cv = new ContentValues();
         cv.put(HatchTable.NAME, name);
+        cv.put(HatchTable.LAST_MODIFIED, System.currentTimeMillis());
+        return(context.getContentResolver().update(HatchtrackProvider.HATCH_URI, cv, HatchTable.ID + " = " + hatchId, null));
+    }
+
+    /**
+     *
+     * @param context app context
+     * @param hatchId
+     * @param value reminders are on
+     * @return number of hatches updated. should be 1 if the hatch exists, else 0
+     */
+    public static int setHasTurnReminders(Context context, long hatchId, boolean value){
+        ContentValues cv = new ContentValues();
+        cv.put(HatchTable.HAS_TURN_REMINDERS, (value?1:0));
         cv.put(HatchTable.LAST_MODIFIED, System.currentTimeMillis());
         return(context.getContentResolver().update(HatchtrackProvider.HATCH_URI, cv, HatchTable.ID + " = " + hatchId, null));
     }

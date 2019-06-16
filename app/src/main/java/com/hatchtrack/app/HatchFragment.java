@@ -31,6 +31,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
@@ -54,7 +55,7 @@ public class HatchFragment extends Fragment implements
         ChooseSpeciesView.ChooseSpeciesListener,
         DialogEggCount.EggCountListener,
         CompoundButton.OnCheckedChangeListener,
-        Util.UtilDoneCallback {
+        Util.UtilDoneCallback, DialogEditText.EditTextListener {
     private static final String TAG = HatchFragment.class.getSimpleName();
 
     private Context context;
@@ -96,6 +97,10 @@ public class HatchFragment extends Fragment implements
     private TextView speciesNameValue;
     private CheckBox notificationsCheckbox;
     private int hatchStatus;
+    private DialogEditText nameDialog;
+    private Button startHatchButton;
+    private boolean needsCalendar;
+    private boolean hasTurnReminders;
 
     public HatchFragment() {
         this.uiHandler = new Handler();
@@ -206,6 +211,9 @@ public class HatchFragment extends Fragment implements
         this.nameContainer.setOnClickListener(this);
         this.nameText = rootView.findViewById(R.id.nameText);
         this.nameText.setOnEditorActionListener(this);
+        // start hatch
+        this.startHatchButton = rootView.findViewById(R.id.startHatchButton);
+        this.startHatchButton.setOnClickListener(this);
         // notifications
         this.notificationsCheckbox = rootView.findViewById(R.id.notificationsCheckbox);
         this.notificationsCheckbox.setOnCheckedChangeListener(this);
@@ -380,6 +388,15 @@ public class HatchFragment extends Fragment implements
         }
         if(this.nameText != null){
             this.nameText.setText(this.name);
+        } else {
+            if(this.getFragmentManager() != null) {
+                if (this.nameDialog == null) {
+                    this.nameDialog = new DialogEditText();
+                    this.nameDialog.setEditTextListener(HatchFragment.this);
+                    this.nameDialog.setValue(this.name);
+                    this.nameDialog.show(this.getFragmentManager(), "EditTextDialog");
+                }
+            }
         }
         if(this.speciesNameValue != null){
             this.speciesNameValue.setText(this.speciesName);
@@ -481,6 +498,7 @@ public class HatchFragment extends Fragment implements
             case Globals.LOADER_ID_HATCH_HATCHTABLE:
                 // this hatch
                 if(cursor.moveToFirst()) {
+                    this.hasTurnReminders = cursor.getInt(cursor.getColumnIndex(HatchTable.HAS_TURN_REMINDERS)) != 0;
                     this.name = cursor.getString(cursor.getColumnIndex(HatchTable.NAME));
                     int sid = cursor.getInt(cursor.getColumnIndex(HatchTable.SPECIES_ID));
                     long startTime = cursor.getLong(cursor.getColumnIndex(HatchTable.START));
@@ -605,10 +623,10 @@ public class HatchFragment extends Fragment implements
         return false;
     }
 
-    // choose species
     @Override
     public void onClick(View v) {
         if(v == this.speciesContainer) {
+            // choose species
             Log.i(TAG, "onClick(): SPECIES");
             Fragment f = HatchFragment.this.getFragmentManager().findFragmentByTag("SpeciesDialog");
             if (f == null) {
@@ -642,6 +660,32 @@ public class HatchFragment extends Fragment implements
                 }
             });
         }
+        else if(v == this.startHatchButton) {
+            // start hatch
+            Log.i(TAG, "onClick(): START HATCH");
+            if((this.speciesDays <= 0) || (this.speciesName == null)){
+                (new AlertDialog.Builder(this.getActivity(), R.style.HatchTrackDialogThemeAnim))
+                        .setTitle(this.getActivity().getResources().getString(R.string.oops_title))
+                        .setMessage(this.getActivity().getResources().getString(R.string.need_species_text))
+                        .setPositiveButton(this.getActivity().getResources().getString(R.string.neutral), new DialogInterface.OnClickListener(){
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        })
+                        .create()
+                        .show();
+            } else {
+                if (this.needsCalendar && ContextCompat.checkSelfPermission(this.getActivity(), Manifest.permission.WRITE_CALENDAR) != PackageManager.PERMISSION_GRANTED) {
+                    // we don't have have permission so can't start the hatch
+                    // try to get permission
+                    requestPermissions(new String[]{Manifest.permission.READ_CALENDAR, Manifest.permission.WRITE_CALENDAR}, Globals.PERMISSION_WRITE_CALENDAR);
+                } else {
+                    // we have permission, or we don't need to touch the calendar, so start the hatch
+//                    this.mungTurnReminders(false);
+                }
+            }
+        }
         else if(v == this.countContainer){
             Log.i(TAG, "onClick(): COUNT");
             Fragment f = HatchFragment.this.getFragmentManager().findFragmentByTag("EggCountDialog");
@@ -658,17 +702,21 @@ public class HatchFragment extends Fragment implements
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
         if (this.getActivity() != null) {
             if (buttonView == this.notificationsCheckbox) {
-                if (ContextCompat.checkSelfPermission(this.getActivity(), Manifest.permission.WRITE_CALENDAR) != PackageManager.PERMISSION_GRANTED) {
-                    // we don't have have permission so make sure checkbox stays off
-                    this.notificationsCheckbox.setChecked(!isChecked);
-                    // try to get permission
-                    requestPermissions(new String[]{Manifest.permission.READ_CALENDAR, Manifest.permission.WRITE_CALENDAR}, Globals.PERMISSION_WRITE_CALENDAR);
-                } else if (isChecked) {
-                    // we have permission so add the turn reminders
-                    this.mungTurnReminders(true);
-                } else {
-                    // we have permission so remove the turn reminders
-                    this.mungTurnReminders(false);
+                if(this.hatchStatus == Globals.STATUS_HATCH_UNSTARTED) {
+                }
+                else if(this.hatchStatus == Globals.STATUS_HATCH_STARTED) {
+                    if (ContextCompat.checkSelfPermission(this.getActivity(), Manifest.permission.WRITE_CALENDAR) != PackageManager.PERMISSION_GRANTED) {
+                        // we don't have have permission so make sure checkbox stays off
+                        this.notificationsCheckbox.setChecked(!isChecked);
+                        // try to get permission
+                        requestPermissions(new String[]{Manifest.permission.READ_CALENDAR, Manifest.permission.WRITE_CALENDAR}, Globals.PERMISSION_WRITE_CALENDAR);
+                    } else if (isChecked) {
+                        // we have permission so add the turn reminders
+                        this.mungTurnReminders(true);
+                    } else {
+                        // we have permission so remove the turn reminders
+                        this.mungTurnReminders(false);
+                    }
                 }
             }
         }
@@ -803,5 +851,11 @@ public class HatchFragment extends Fragment implements
                 }
             });
         }
+    }
+
+    @Override
+    public void onText(String text) {
+        this.nameDialog.dismiss();
+        this.nameDialog = null;
     }
 }
