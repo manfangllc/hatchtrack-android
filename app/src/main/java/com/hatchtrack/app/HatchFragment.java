@@ -407,6 +407,9 @@ public class HatchFragment extends Fragment implements
         if(this.toolbarLayout != null){
             this.toolbarLayout.setTitle(this.name);
         }
+        if(this.notificationsCheckbox != null){
+            this.notificationsCheckbox.setChecked(this.hasTurnReminders);
+        }
     }
 
 //    @Override
@@ -702,8 +705,11 @@ public class HatchFragment extends Fragment implements
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
         if (this.getActivity() != null) {
             if (buttonView == this.notificationsCheckbox) {
+                // if it's unstarted then we don't have to change the calendar
                 if(this.hatchStatus == Globals.STATUS_HATCH_UNSTARTED) {
+                    Data.setHasTurnReminders(this.context, this.hatchId, isChecked);
                 }
+                // if it's already started then we have to make sure we have permission to change the calendar
                 else if(this.hatchStatus == Globals.STATUS_HATCH_STARTED) {
                     if (ContextCompat.checkSelfPermission(this.getActivity(), Manifest.permission.WRITE_CALENDAR) != PackageManager.PERMISSION_GRANTED) {
                         // we don't have have permission so make sure checkbox stays off
@@ -795,6 +801,20 @@ public class HatchFragment extends Fragment implements
         }
     }
 
+    private void startHatch(){
+        if(this.hatchStatus == Globals.STATUS_HATCH_UNSTARTED){
+            if(this.hasTurnReminders){
+                if (ContextCompat.checkSelfPermission(this.getActivity(), Manifest.permission.WRITE_CALENDAR) != PackageManager.PERMISSION_GRANTED) {
+                    // we don't have have permission so make sure checkbox stays off
+                    // try to get permission
+                    requestPermissions(new String[]{Manifest.permission.READ_CALENDAR, Manifest.permission.WRITE_CALENDAR}, Globals.PERMISSION_WRITE_CALENDAR);
+                } else {
+                    // we have permission so add the turn reminders
+                    this.mungTurnReminders(true);
+                }
+            }
+        }
+    }
 
     private void refreshImage(){
         String s = this.speciesPicMap.get(this.speciesId);
