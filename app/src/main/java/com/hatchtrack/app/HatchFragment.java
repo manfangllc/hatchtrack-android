@@ -251,106 +251,6 @@ public class HatchFragment extends Fragment implements
             }
         });
 
-//        rootView.findViewById(R.id.reminderTest).setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                if (!HatchFragment.this.checkCalendarPermission()) {
-//                    return;
-//                }
-//                AlertDialog.Builder builder = new AlertDialog.Builder(HatchFragment.this.context, R.style.HatchTrackDialogThemeAnim_NoMinWidth);
-//                HatchFragment.this.bizzyDialog = builder.setView(R.layout.dialog_bizzy).setTitle("Updating Calendar").create();
-//                HatchFragment.this.bizzyDialog.show();
-//                HatchFragment.this.bgHandler.post(new Runnable(){
-//                    @Override
-//                    public void run() {
-//                        Util.createCalendarTurns(
-//                                HatchFragment.this.context,
-//                                HatchFragment.this.hatchId,
-//                                HatchFragment.this.name,
-//                                Data.getSpeciesDaysFromHatch(HatchFragment.this.context, HatchFragment.this.hatchId) - 5,
-//                                System.currentTimeMillis(),
-//                                new Util.UtilDoneCallback(){
-//                                    @Override
-//                                    public void onDone(int n) {
-//                                        if(HatchFragment.this.bizzyDialog != null){
-//                                            HatchFragment.this.uiHandler.post(new Runnable(){
-//                                                @Override
-//                                                public void run() {
-//                                                    HatchFragment.this.bizzyDialog.dismiss();
-//                                                    HatchFragment.this.bizzyDialog = null;
-//                                                }
-//                                            });
-//                                        }
-//                                    }
-//                                }
-//                        );
-//                    }
-//                });
-//            }
-//        });
-//
-//        rootView.findViewById(R.id.reminderTest2).setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                if(!HatchFragment.this.checkCalendarPermission()){
-//                    return;
-//                }
-//                AlertDialog.Builder builder = new AlertDialog.Builder(HatchFragment.this.context, R.style.HatchTrackDialogThemeAnim_NoMinWidth);
-//                HatchFragment.this.bizzyDialog = builder.setView(R.layout.dialog_bizzy).setTitle("Updating Calendar").create();
-//                HatchFragment.this.bizzyDialog.show();
-//                HatchFragment.this.bgHandler.post(new Runnable(){
-//                    @Override
-//                    public void run() {
-//                        Util.removeTurnEvents(HatchFragment.this.context, HatchFragment.this.hatchId, new Util.UtilDoneCallback(){
-//                            @Override
-//                            public void onDone(int n) {
-//                                if(HatchFragment.this.bizzyDialog != null){
-//                                    HatchFragment.this.uiHandler.post(new Runnable(){
-//                                        @Override
-//                                        public void run() {
-//                                            HatchFragment.this.bizzyDialog.dismiss();
-//                                            HatchFragment.this.bizzyDialog = null;
-//                                        }
-//                                    });
-//                                }
-//                            }
-//                        });
-//                    }
-//                });
-//            }
-//        });
-//
-//        rootView.findViewById(R.id.reminderTest3).setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                if(!HatchFragment.this.checkCalendarPermission()){
-//                    return;
-//                }
-//                AlertDialog.Builder builder = new AlertDialog.Builder(HatchFragment.this.context, R.style.HatchTrackDialogThemeAnim_NoMinWidth);
-//                HatchFragment.this.bizzyDialog = builder.setView(R.layout.dialog_bizzy).setTitle("Updating Calendar").create();
-//                HatchFragment.this.bizzyDialog.show();
-//                HatchFragment.this.bgHandler.post(new Runnable(){
-//                    @Override
-//                    public void run() {
-//                        Util.removeTurnReminders(HatchFragment.this.context, HatchFragment.this.hatchId, new Util.UtilDoneCallback(){
-//                            @Override
-//                            public void onDone(int n) {
-//                                if(HatchFragment.this.bizzyDialog != null){
-//                                    HatchFragment.this.uiHandler.post(new Runnable(){
-//                                        @Override
-//                                        public void run() {
-//                                            HatchFragment.this.bizzyDialog.dismiss();
-//                                            HatchFragment.this.bizzyDialog = null;
-//                                        }
-//                                    });
-//                                }
-//                            }
-//                        });
-//                    }
-//                });
-//            }
-//        });
-
         this.refresh();
         Log.i(TAG, Data.dumpTable(this.context, HatchtrackProvider.HATCH_URI));
         return(rootView);
@@ -408,16 +308,18 @@ public class HatchFragment extends Fragment implements
             this.toolbarLayout.setTitle(this.name);
         }
         if(this.notificationsCheckbox != null){
+            if (ContextCompat.checkSelfPermission(this.getActivity(), Manifest.permission.WRITE_CALENDAR) != PackageManager.PERMISSION_GRANTED) {
+                // we don't have have permission so make sure checkbox stays off
+                this.notificationsCheckbox.setChecked(false);
+                // try to get permission
+                requestPermissions(new String[]{Manifest.permission.READ_CALENDAR, Manifest.permission.WRITE_CALENDAR}, Globals.PERMISSION_WRITE_CALENDAR);
+            } else {
+                // we have permission so remove the turn reminders
+            }
+
             this.notificationsCheckbox.setChecked(this.hasTurnReminders);
         }
     }
-
-//    @Override
-//    public void onVisible() {
-//        this.toolbarLayout.setTitle("New Hatch...");
-//        this.setupFab();
-//        this.imageView.setImageResource(R.drawable.hatch_1);
-//    }
 
     @NonNull
     @Override
@@ -705,24 +607,17 @@ public class HatchFragment extends Fragment implements
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
         if (this.getActivity() != null) {
             if (buttonView == this.notificationsCheckbox) {
-                // if it's unstarted then we don't have to change the calendar
-                if(this.hatchStatus == Globals.STATUS_HATCH_UNSTARTED) {
-                    Data.setHasTurnReminders(this.context, this.hatchId, isChecked);
-                }
-                // if it's already started then we have to make sure we have permission to change the calendar
-                else if(this.hatchStatus == Globals.STATUS_HATCH_STARTED) {
-                    if (ContextCompat.checkSelfPermission(this.getActivity(), Manifest.permission.WRITE_CALENDAR) != PackageManager.PERMISSION_GRANTED) {
-                        // we don't have have permission so make sure checkbox stays off
-                        this.notificationsCheckbox.setChecked(!isChecked);
-                        // try to get permission
-                        requestPermissions(new String[]{Manifest.permission.READ_CALENDAR, Manifest.permission.WRITE_CALENDAR}, Globals.PERMISSION_WRITE_CALENDAR);
-                    } else if (isChecked) {
-                        // we have permission so add the turn reminders
-                        this.mungTurnReminders(true);
-                    } else {
-                        // we have permission so remove the turn reminders
-                        this.mungTurnReminders(false);
-                    }
+                if (ContextCompat.checkSelfPermission(this.getActivity(), Manifest.permission.WRITE_CALENDAR) != PackageManager.PERMISSION_GRANTED) {
+                    // we don't have have permission so make sure checkbox stays off
+                    this.notificationsCheckbox.setChecked(!isChecked);
+                    // try to get permission
+                    requestPermissions(new String[]{Manifest.permission.READ_CALENDAR, Manifest.permission.WRITE_CALENDAR}, Globals.PERMISSION_WRITE_CALENDAR);
+                } else if (isChecked) {
+                    // we have permission so add the turn reminders
+                    this.mungTurnReminders(true);
+                } else {
+                    // we have permission so remove the turn reminders
+                    this.mungTurnReminders(false);
                 }
             }
         }
