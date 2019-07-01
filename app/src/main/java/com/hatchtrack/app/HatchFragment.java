@@ -83,7 +83,6 @@ public class HatchFragment extends Fragment implements
     private String[] freePeepNames = new String[0];
     private String picMapPath;
     private String imagePath;
-    private EditText textView;
     private Handler bgHandler;
     private Handler uiHandler;
     private AlertDialog bizzyDialog;
@@ -101,6 +100,9 @@ public class HatchFragment extends Fragment implements
     private Button startHatchButton;
     private boolean needsCalendar;
     private boolean hasTurnReminders;
+    private long startTime;
+    private long endTime;
+    private ImageView speciesEditImage;
 
     public HatchFragment() {
         this.uiHandler = new Handler();
@@ -200,6 +202,7 @@ public class HatchFragment extends Fragment implements
         // species
         this.speciesContainer = rootView.findViewById(R.id.speciesContainer);
         this.speciesContainer.setOnClickListener(this);
+        this.speciesEditImage = rootView.findViewById(R.id.imageEditSpecies);
         // egg count
         this.countValue = rootView.findViewById(R.id.countValue);
         this.countContainer = rootView.findViewById(R.id.countContainer);
@@ -217,7 +220,6 @@ public class HatchFragment extends Fragment implements
         // notifications
         this.notificationsCheckbox = rootView.findViewById(R.id.notificationsCheckbox);
         this.notificationsCheckbox.setOnCheckedChangeListener(this);
-        this.textView = rootView.findViewById(R.id.text);
         rootView.findViewById(R.id.peepButton).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -270,22 +272,25 @@ public class HatchFragment extends Fragment implements
     }
 
     private void refresh(){
-        if(this.textView != null){
-            if(this.hatchId == 0){
-                this.textView.setText("This should be some hatch info, but there's no database ID for this hatch.");
-            }
-            else {
-                StringBuilder msg = Data.getRowText(this.context, HatchtrackProvider.HATCH_URI, this.hatchId);
-                if((this.peepIds != null) && (this.peepIds.length > 0)){
-                    msg.append("\nPeep IDs: ");
-                    for(int i = 0; i < this.peepIds.length; i++){
-                        msg.append(this.peepIds[i]);
-                        msg.append(' ');
-                    }
-                }
-                this.textView.setText(msg);
-            }
+        if(this.getActivity() == null){
+            return;
         }
+        // species/breed
+        if(this.speciesNameValue != null){
+            this.speciesNameValue.setText(this.speciesName);
+        }
+        if(this.speciesDaysValue != null){
+            this.speciesDaysValue.setText(Float.toString(this.speciesDays));
+        }
+        if(this.hatchStatus == Globals.STATUS_HATCH_UNSTARTED){
+            this.speciesEditImage.setVisibility(View.VISIBLE);
+            this.speciesContainer.setClickable(true);
+        }
+        else {
+            this.speciesEditImage.setVisibility(View.INVISIBLE);
+            this.speciesContainer.setClickable(false);
+        }
+
         if(this.nameText != null){
             this.nameText.setText(this.name);
         } else {
@@ -298,15 +303,10 @@ public class HatchFragment extends Fragment implements
                 }
             }
         }
-        if(this.speciesNameValue != null){
-            this.speciesNameValue.setText(this.speciesName);
-        }
-        if(this.speciesDaysValue != null){
-            this.speciesDaysValue.setText(Float.toString(this.speciesDays));
-        }
         if(this.toolbarLayout != null){
             this.toolbarLayout.setTitle(this.name);
         }
+        /*
         if(this.notificationsCheckbox != null){
             if (ContextCompat.checkSelfPermission(this.getActivity(), Manifest.permission.WRITE_CALENDAR) != PackageManager.PERMISSION_GRANTED) {
                 // we don't have have permission so make sure checkbox stays off
@@ -319,6 +319,7 @@ public class HatchFragment extends Fragment implements
 
             this.notificationsCheckbox.setChecked(this.hasTurnReminders);
         }
+        */
     }
 
     @NonNull
@@ -403,14 +404,15 @@ public class HatchFragment extends Fragment implements
             case Globals.LOADER_ID_HATCH_HATCHTABLE:
                 // this hatch
                 if(cursor.moveToFirst()) {
+                    long now = System.currentTimeMillis();
                     this.hasTurnReminders = cursor.getInt(cursor.getColumnIndex(HatchTable.HAS_TURN_REMINDERS)) != 0;
                     this.name = cursor.getString(cursor.getColumnIndex(HatchTable.NAME));
                     int sid = cursor.getInt(cursor.getColumnIndex(HatchTable.SPECIES_ID));
-                    long startTime = cursor.getLong(cursor.getColumnIndex(HatchTable.START));
-                    long endTime = cursor.getLong(cursor.getColumnIndex(HatchTable.END));
+                    this.startTime = cursor.getLong(cursor.getColumnIndex(HatchTable.START));
+                    this.endTime = cursor.getLong(cursor.getColumnIndex(HatchTable.END));
                     if(startTime == 0L){
                         this.hatchStatus = Globals.STATUS_HATCH_UNSTARTED;
-                    } else if(startTime < endTime){
+                    } else if(now < this.endTime){
                         this.hatchStatus = Globals.STATUS_HATCH_STARTED;
                     } else {
                         this.hatchStatus = Globals.STATUS_HATCH_FINISHED;
