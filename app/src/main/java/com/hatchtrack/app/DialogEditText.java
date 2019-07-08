@@ -58,10 +58,19 @@ public class DialogEditText extends DialogFragment implements TextView.OnEditorA
             imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
             builder.setMessage(this.title)
                     .setView(rootView)
+                    .setOnCancelListener(new DialogInterface.OnCancelListener() {
+                        @Override
+                        public void onCancel(DialogInterface dialog) {
+                            InputMethodManager imm = (InputMethodManager) DialogEditText.this.getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                            imm.hideSoftInputFromWindow(DialogEditText.this.editText.getWindowToken(), 0);
+                            DialogEditText.this.listener.onText(null);
+                        }
+                    })
                     .setNegativeButton(R.string.choose_species_negative, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
                             InputMethodManager imm = (InputMethodManager) DialogEditText.this.getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
                             imm.hideSoftInputFromWindow(DialogEditText.this.editText.getWindowToken(), 0);
+                            DialogEditText.this.listener.onText(null);
                         }
                     })
                     .setPositiveButton(R.string.choose_peeps_positive, new DialogInterface.OnClickListener() {

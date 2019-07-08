@@ -19,7 +19,8 @@
             android:id="@+id/speciesContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="?attr/selectableItemBackground">
+            android:background="?attr/selectableItemBackground"
+            android:paddingBottom="8dp">
 
             <android.support.constraint.Guideline
                 android:id="@+id/guideline4"
@@ -93,7 +94,6 @@
                 android:id="@+id/speciesDays"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="2dp"
                 android:gravity="right|end"
                 android:text="@string/species_label_days"
                 app:layout_constraintBottom_toBottomOf="@+id/speciesDaysValue"
@@ -105,7 +105,8 @@
             android:id="@+id/countContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="?attr/selectableItemBackground">
+            android:background="?attr/selectableItemBackground"
+            android:paddingBottom="8dp">
 
             <android.support.constraint.Guideline
                 android:id="@+id/guideline5"
@@ -152,10 +153,10 @@
                 android:id="@+id/countNumber"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="4dp"
                 android:text="@string/egg_count_label_number"
-                app:layout_constraintBottom_toBottomOf="@+id/countValue"
-                app:layout_constraintRight_toLeftOf="@+id/guideline5" />
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintRight_toLeftOf="@+id/guideline5"
+                app:layout_constraintTop_toBottomOf="@+id/countTitle" />
 
             <TextView
                 android:id="@+id/countValue"
@@ -164,6 +165,7 @@
                 android:layout_marginLeft="4dp"
                 android:text="0"
                 android:textSize="24sp"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintLeft_toRightOf="@+id/guideline5"
                 app:layout_constraintTop_toBottomOf="@+id/countIntro" />
 
@@ -174,7 +176,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="?attr/selectableItemBackground"
-            tools:visibility="visible">
+            android:visibility="gone">
 
             <TextView
                 android:id="@+id/nameTitle"
@@ -219,6 +221,7 @@
                 android:inputType="text"
                 android:maxLines="1"
                 android:singleLine="true"
+                android:visibility="visible"
                 app:layout_constraintLeft_toLeftOf="@+id/textView2"
                 app:layout_constraintTop_toBottomOf="@+id/textView2" />
 
@@ -228,7 +231,10 @@
             android:id="@+id/statusContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="?attr/selectableItemBackground">
+            android:background="?attr/selectableItemBackground"
+            android:paddingBottom="8dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent">
 
             <android.support.constraint.Guideline
                 android:id="@+id/guideline8"
@@ -255,7 +261,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
                 android:text="@string/status_intro"
-                android:visibility="visible"
+                android:visibility="invisible"
                 app:layout_constraintLeft_toLeftOf="@+id/statusTitle"
                 app:layout_constraintTop_toBottomOf="@+id/statusTitle" />
 
@@ -264,13 +270,101 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:layout_marginBottom="8dp"
                 android:enabled="true"
                 android:text="@string/start_hatch_button_label"
-                app:layout_constraintBottom_toBottomOf="parent"
+                android:visibility="invisible"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/statusIntro" />
+
+            <TextView
+                android:id="@+id/startedLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/status_start_date"
+                app:layout_constraintEnd_toStartOf="@id/guideline8"
+                tools:layout_editor_absoluteY="29dp" />
+
+            <TextView
+                android:id="@+id/startDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="24sp"
+                app:layout_constraintBottom_toBottomOf="@id/startedLabel"
+                app:layout_constraintTop_toBottomOf="@+id/statusTitle"
+                app:layout_constraintTop_toTopOf="@id/startedLabel"
+                tools:layout_editor_absoluteX="123dp" />
+
+            <android.support.constraint.ConstraintLayout
+                android:id="@+id/currentDay"
+                android:layout_width="60dp"
+                android:layout_height="80dp"
+                android:background="@drawable/pad"
+                tools:layout_editor_absoluteX="8dp"
+                tools:layout_editor_absoluteY="56dp">
+
+                <TextView
+                    android:id="@+id/currentDayText"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:background="#00000000"
+                    android:gravity="center"
+                    android:text="27"
+                    android:textSize="36sp"
+                    android:textStyle="bold"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/textView16" />
+
+                <TextView
+                    android:id="@+id/textView16"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:background="#461705"
+                    android:gravity="center"
+                    android:text="@string/status_day_current"
+                    android:textColor="#FFD600"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+            </android.support.constraint.ConstraintLayout>
+
+            <android.support.constraint.ConstraintLayout
+                android:id="@+id/daysLeft"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:layout_marginStart="24dp"
+                android:background="@drawable/pad"
+                app:layout_constraintStart_toEndOf="@id/currentDay"
+                app:layout_constraintTop_toTopOf="@id/currentDay">
+
+                <TextView
+                    android:id="@+id/daysLeftText"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:background="#00000000"
+                    android:gravity="center"
+                    android:text="28"
+                    android:textSize="36sp"
+                    android:textStyle="bold"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/textView17" />
+
+                <TextView
+                    android:id="@+id/textView17"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:background="#461705"
+                    android:gravity="center"
+                    android:text="@string/status_days_remaining"
+                    android:textColor="#FFD600"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+            </android.support.constraint.ConstraintLayout>
 
         </android.support.constraint.ConstraintLayout>
 
@@ -279,7 +373,8 @@
             android:id="@+id/notificationContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="?attr/selectableItemBackground">
+            android:background="?attr/selectableItemBackground"
+            android:paddingBottom="8dp">
 
             <android.support.constraint.Guideline
                 android:id="@+id/guideline6"

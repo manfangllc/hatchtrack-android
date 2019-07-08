@@ -20,7 +20,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.TimeZone;
 
 class Util {
@@ -289,4 +291,10 @@ class Util {
         }
     }
 
+    static String getLocalTimeString(long millis){
+        Calendar cal = Calendar.getInstance();
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyy hh:mm a");
+        sdf.setTimeZone(cal.getTimeZone());
+        return(sdf.format(new Date(millis)));
+    }
 }

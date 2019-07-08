@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
@@ -45,6 +46,9 @@ import com.hatchtrack.app.database.HatchtrackProvider;
 import com.hatchtrack.app.database.PeepTable;
 import com.hatchtrack.app.database.SpeciesTable;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -97,7 +101,16 @@ public class HatchFragment extends Fragment implements
     private CheckBox notificationsCheckbox;
     private int hatchStatus;
     private DialogEditText nameDialog;
+
+    private View statusIntro;
     private Button startHatchButton;
+    private View startedLabel;
+    private TextView startDate;
+    private ViewGroup currentDayGroup;
+    private TextView currentDayText;
+    private ViewGroup daysLeftGroup;
+    private TextView daysLeftText;
+
     private boolean needsCalendar;
     private boolean hasTurnReminders;
     private long startTime;
@@ -200,23 +213,42 @@ public class HatchFragment extends Fragment implements
 
         View rootView = inflater.inflate(R.layout.frag_hatch, container, false);
         // species
+        this.speciesId = 0;
+        this.speciesName = "";
+        this.speciesDays = 0f;
         this.speciesContainer = rootView.findViewById(R.id.speciesContainer);
         this.speciesContainer.setOnClickListener(this);
         this.speciesEditImage = rootView.findViewById(R.id.imageEditSpecies);
+        this.speciesNameValue = rootView.findViewById(R.id.speciesNameValue);
+        this.speciesDaysValue = rootView.findViewById(R.id.speciesDaysValue);
         // egg count
+        this.newEggCount = 0;
         this.countValue = rootView.findViewById(R.id.countValue);
         this.countContainer = rootView.findViewById(R.id.countContainer);
         this.countContainer.setOnClickListener(this);
-        this.speciesNameValue = rootView.findViewById(R.id.speciesNameValue);
-        this.speciesDaysValue = rootView.findViewById(R.id.speciesDaysValue);
         // name
         this.nameContainer = rootView.findViewById(R.id.nameContainer);
         this.nameContainer.setOnClickListener(this);
         this.nameText = rootView.findViewById(R.id.nameText);
         this.nameText.setOnEditorActionListener(this);
-        // start hatch
+        // status
+        this.statusIntro = rootView.findViewById(R.id.statusIntro);
+        this.startedLabel = rootView.findViewById(R.id.startedLabel);
+        this.startDate = rootView.findViewById(R.id.startDate);
+        this.currentDayGroup = rootView.findViewById(R.id.currentDay);
+        this.currentDayText = rootView.findViewById(R.id.currentDayText);
+        this.daysLeftGroup = rootView.findViewById(R.id.daysLeft);
+        this.daysLeftText = rootView.findViewById(R.id.daysLeftText);
         this.startHatchButton = rootView.findViewById(R.id.startHatchButton);
         this.startHatchButton.setOnClickListener(this);
+        this.statusIntro.setVisibility(View.INVISIBLE);
+        this.startedLabel.setVisibility(View.INVISIBLE);
+        this.startDate.setVisibility(View.INVISIBLE);
+        this.currentDayGroup.setVisibility(View.INVISIBLE);
+        this.currentDayText.setVisibility(View.INVISIBLE);
+        this.daysLeftGroup.setVisibility(View.INVISIBLE);
+        this.daysLeftText.setVisibility(View.INVISIBLE);
+        this.startHatchButton.setVisibility(View.INVISIBLE);
         // notifications
         this.notificationsCheckbox = rootView.findViewById(R.id.notificationsCheckbox);
         this.notificationsCheckbox.setOnCheckedChangeListener(this);
@@ -271,24 +303,66 @@ public class HatchFragment extends Fragment implements
         this.appBarLayout.setOnClickListener(this);
     }
 
-    private void refresh(){
-        if(this.getActivity() == null){
+    private void refresh() {
+        if (this.getActivity() == null) {
             return;
         }
+
         // species/breed
-        if(this.speciesNameValue != null){
-            this.speciesNameValue.setText(this.speciesName);
+        this.speciesNameValue.setText(this.speciesName);
+        this.speciesDaysValue.setText(Float.toString(this.speciesDays));
+        this.checkStart();
+
+        // status
+        if (this.hatchStatus == Globals.STATUS_HATCH_STARTED) {
+            long now = System.currentTimeMillis();
+            float fDay = (float) (((double) (now - this.startTime)) / (24 * 60 * 60 * 1000));
+            int nDay = (int)(1 + fDay);
+            float fDays = (float) (((double) (now - this.startTime)) / (24 * 60 * 60 * 1000));
+            int nDays = (int)(1 + fDays);
+            Calendar cal = Calendar.getInstance();
+            cal.setTimeInMillis(this.startTime);
+            String startMonth = new SimpleDateFormat("MMM").format(cal.getTime());
+            String startDay = new SimpleDateFormat("dd").format(cal.getTime());
+            String startTime = new SimpleDateFormat("h:mm a").format(cal.getTime());
+            cal.setTimeInMillis(this.endTime);
+            String endMonth = new SimpleDateFormat("MMM").format(cal.getTime());
+            String endDay = new SimpleDateFormat("dd").format(cal.getTime());
+            String endTime = new SimpleDateFormat("h:mm a").format(cal.getTime());
         }
-        if(this.speciesDaysValue != null){
-            this.speciesDaysValue.setText(Float.toString(this.speciesDays));
-        }
-        if(this.hatchStatus == Globals.STATUS_HATCH_UNSTARTED){
-            this.speciesEditImage.setVisibility(View.VISIBLE);
-            this.speciesContainer.setClickable(true);
-        }
-        else {
-            this.speciesEditImage.setVisibility(View.INVISIBLE);
-            this.speciesContainer.setClickable(false);
+
+//        if(this.hatchStatus == Globals.STATUS_HATCH_UNSTARTED){
+//            this.speciesEditImage.setVisibility(View.VISIBLE);
+//            this.speciesContainer.setClickable(true);
+//        }
+//        else {
+//            this.speciesEditImage.setVisibility(View.INVISIBLE);
+//            this.speciesContainer.setClickable(false);
+//        }
+
+        // egg count
+        this.countValue.setText(Integer.toString(this.newEggCount));
+
+        // calendar reminders for turning
+        switch(this.hatchStatus){
+            case Globals.STATUS_HATCH_UNSTARTED:
+                this.notificationsCheckbox.setEnabled(true);
+                if(this.checkCalendarPermission()){
+                    this.notificationsCheckbox.setChecked(this.hasTurnReminders);
+                }
+                else {
+                    this.notificationsCheckbox.setChecked(false);
+                    if(this.hasTurnReminders){
+                        Data.setHasTurnReminders(this.context, this.hatchId, false);
+                    }
+                }
+                break;
+            case Globals.STATUS_HATCH_FINISHED:
+                this.notificationsCheckbox.setEnabled(false);
+                break;
+            case Globals.STATUS_HATCH_STARTED:
+                this.notificationsCheckbox.setChecked(this.hasTurnReminders);
+                break;
         }
 
         if(this.nameText != null){
@@ -405,28 +479,40 @@ public class HatchFragment extends Fragment implements
                 // this hatch
                 if(cursor.moveToFirst()) {
                     long now = System.currentTimeMillis();
+                    this.newEggCount = cursor.getInt(cursor.getColumnIndex(HatchTable.EGG_COUNT));
                     this.hasTurnReminders = cursor.getInt(cursor.getColumnIndex(HatchTable.HAS_TURN_REMINDERS)) != 0;
                     this.name = cursor.getString(cursor.getColumnIndex(HatchTable.NAME));
                     int sid = cursor.getInt(cursor.getColumnIndex(HatchTable.SPECIES_ID));
                     this.startTime = cursor.getLong(cursor.getColumnIndex(HatchTable.START));
                     this.endTime = cursor.getLong(cursor.getColumnIndex(HatchTable.END));
-                    if(startTime == 0L){
-                        this.hatchStatus = Globals.STATUS_HATCH_UNSTARTED;
+                    // hatch status
+                    int status;
+                    if(this.startTime == 0L){
+                        status = Globals.STATUS_HATCH_UNSTARTED;
                     } else if(now < this.endTime){
-                        this.hatchStatus = Globals.STATUS_HATCH_STARTED;
+                        status = Globals.STATUS_HATCH_STARTED;
                     } else {
-                        this.hatchStatus = Globals.STATUS_HATCH_FINISHED;
+                        status = Globals.STATUS_HATCH_FINISHED;
                     }
+                    this.checkHatchStatus(status);
+                    // dates
+                    if(this.hatchStatus == Globals.STATUS_HATCH_STARTED){
+                        this.computeDates();
+                    }
+                    // species
                     if(sid != this.speciesId) {
                         this.speciesId = sid;
-                        if(this.speciesId < this.speciesDaysArray.length) {
-                            this.speciesDays = this.speciesDaysArray[this.speciesId];
+                        if(this.speciesId > 0) {
+                            if (this.speciesId <= this.speciesDaysArray.length) {
+                                this.speciesDays = this.speciesDaysArray[this.speciesId - 1];
+                            }
+                            if (this.speciesId <= this.speciesNames.length) {
+                                this.speciesName = this.speciesNames[this.speciesId - 1];
+                            }
+                            this.refreshImage();
                         }
-                        if(this.speciesId < this.speciesNames.length) {
-                            this.speciesName = this.speciesNames[this.speciesId];
-                        }
-                        this.refreshImage();
                     }
+                    // update display
                     this.refresh();
                 }
                 break;
@@ -497,8 +583,16 @@ public class HatchFragment extends Fragment implements
                         i++;
                         cursor.moveToNext();
                     }
-                    this.refresh();
-                    this.refreshImage();
+                    if(this.speciesId > 0) {
+                        if (this.speciesId <= this.speciesDaysArray.length) {
+                            this.speciesDays = this.speciesDaysArray[this.speciesId - 1];
+                        }
+                        if (this.speciesId <= this.speciesNames.length) {
+                            this.speciesName = this.speciesNames[this.speciesId - 1];
+                        }
+                        this.refresh();
+                        this.refreshImage();
+                    }
                 }
                 break;
         }
@@ -603,6 +697,14 @@ public class HatchFragment extends Fragment implements
                 d.show(HatchFragment.this.getFragmentManager(), "EggCountDialog");
             }
         }
+        else if(v == this.appBarLayout){
+            if (this.nameDialog == null) {
+                this.nameDialog = new DialogEditText();
+                this.nameDialog.setEditTextListener(HatchFragment.this);
+                this.nameDialog.setValue(this.name);
+                this.nameDialog.show(this.getFragmentManager(), "EditTextDialog");
+            }
+        }
     }
 
     @Override
@@ -621,8 +723,23 @@ public class HatchFragment extends Fragment implements
                     // we have permission so remove the turn reminders
                     this.mungTurnReminders(false);
                 }
+                Data.setHasTurnReminders(this.context, this.hatchId, isChecked);
             }
         }
+    }
+
+    private void computeDates(){
+        long now = System.currentTimeMillis();
+        float fDays = (float) (((double)(now - this.startTime)) / (24 * 60 * 60 * 1000));
+        Calendar cal = Calendar.getInstance();
+        cal.setTimeInMillis(this.startTime);
+        String startMonth = new SimpleDateFormat("MMM").format(cal.getTime());
+        String startDay = new SimpleDateFormat("dd").format(cal.getTime());
+        String startTime = new SimpleDateFormat("h:mm a").format(cal.getTime());
+        cal.setTimeInMillis(this.endTime);
+        String endMonth = new SimpleDateFormat("MMM").format(cal.getTime());
+        String endDay = new SimpleDateFormat("dd").format(cal.getTime());
+        String endTime = new SimpleDateFormat("h:mm a").format(cal.getTime());
     }
 
     private void mungTurnReminders(final boolean add){
@@ -654,19 +771,21 @@ public class HatchFragment extends Fragment implements
     @Override
     public void onSpeciesChosen(int speciesId, String speciesName, float speciesDays) {
         Util.switchImages(this.getContext(), this.imageView, Uri.parse(this.speciesPicMap.get(speciesId)).getPath());
+        Data.setHatchSpecies(this.getContext(), this.hatchId, speciesId);
+        /*
         this.newSpeciesId = speciesId;
         this.speciesName = speciesName;
         this.speciesDays = speciesDays;
         this.speciesNameValue.setText(speciesName);
         this.speciesDaysValue.setText(Float.toString(this.speciesDays));
         this.checkStart();
+        */
     }
 
     @Override
     public void onEggCount(int count) {
         Log.i(TAG, "onEggCount(" + count + ")");
-        this.countValue.setText(Integer.toString(count));
-        this.newEggCount = count;
+        Data.setEggCount(this.context, this.hatchId, count);
     }
 
     @Override
@@ -742,7 +861,10 @@ public class HatchFragment extends Fragment implements
     }
 
     private boolean checkCalendarPermission(){
-        boolean result = (ContextCompat.checkSelfPermission(this.getActivity(), Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED);
+        boolean result = false;
+        if(this.getActivity() != null){
+            result = ContextCompat.checkSelfPermission(this.getActivity(), Manifest.permission.WRITE_CALENDAR) == PackageManager.PERMISSION_GRANTED;
+        }
         return(result);
     }
 
@@ -754,6 +876,46 @@ public class HatchFragment extends Fragment implements
                     Html.fromHtml("<font color=\"#ffff00\">" + this.getResources().getText(R.string.snackbar_fab_createhatch) + "</font>"),
                     Snackbar.LENGTH_LONG
             ).show();
+        }
+    }
+
+    private void checkHatchStatus(int status){
+        if(status != this.hatchStatus){
+            switch(status){
+                case Globals.STATUS_HATCH_UNSTARTED:
+                    this.hatchStatus = status;
+                    this.statusIntro.setVisibility(View.VISIBLE);
+                    this.startDate.setVisibility(View.VISIBLE);
+                    this.startHatchButton.setVisibility(View.VISIBLE);
+                    this.startedLabel.setVisibility(View.INVISIBLE);
+                    this.currentDayGroup.setVisibility(View.INVISIBLE);
+                    this.currentDayText.setVisibility(View.INVISIBLE);
+                    this.daysLeftGroup.setVisibility(View.INVISIBLE);
+                    this.daysLeftText.setVisibility(View.INVISIBLE);
+                    break;
+                case Globals.STATUS_HATCH_STARTED:
+                    this.hatchStatus = status;
+                    this.statusIntro.setVisibility(View.INVISIBLE);
+                    this.startDate.setVisibility(View.INVISIBLE);
+                    this.startHatchButton.setVisibility(View.INVISIBLE);
+                    this.startedLabel.setVisibility(View.VISIBLE);
+                    this.currentDayGroup.setVisibility(View.VISIBLE);
+                    this.currentDayText.setVisibility(View.VISIBLE);
+                    this.daysLeftGroup.setVisibility(View.VISIBLE);
+                    this.daysLeftText.setVisibility(View.VISIBLE);
+                    break;
+                case Globals.STATUS_HATCH_FINISHED:
+                    this.hatchStatus = status;
+                    this.statusIntro.setVisibility(View.INVISIBLE);
+                    this.startDate.setVisibility(View.INVISIBLE);
+                    this.startHatchButton.setVisibility(View.INVISIBLE);
+                    this.startedLabel.setVisibility(View.VISIBLE);
+                    this.currentDayGroup.setVisibility(View.VISIBLE);
+                    this.currentDayText.setVisibility(View.VISIBLE);
+                    this.daysLeftGroup.setVisibility(View.VISIBLE);
+                    this.daysLeftText.setVisibility(View.VISIBLE);
+                    break;
+            }
         }
     }
 
@@ -774,5 +936,8 @@ public class HatchFragment extends Fragment implements
     public void onText(String text) {
         this.nameDialog.dismiss();
         this.nameDialog = null;
+        if(text != null){
+            Data.setHatchName(this.getContext(), this.hatchId, text);
+        }
     }
 }

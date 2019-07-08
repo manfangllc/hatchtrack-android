@@ -71,7 +71,10 @@
     <string name="title_buypeeps">Get Peep</string>
 
     <string name="status_label">Hatch Status</string>
-    <string name="status_intro">Setup hatch info before starting.</string>
+    <string name="status_intro">This hatch is unstarted.</string>
+    <string name="status_start_date">started on</string>
+    <string name="status_day_current">Day</string>
+    <string name="status_days_remaining">Days Left</string>
     <string name="start_hatch_button_label">Start Hatch</string>
     <string name="end_hatch_button_label">End Hatch</string>
     <string name="hatch_name_label">Hatch Name</string>
@@ -87,7 +90,7 @@
     <string name="peeps_label">Peeps</string>
     <string name="eggs_label">Eggs</string>
     <string name="reminders_title">Calendar Reminders</string>
-    <string name="turn_reminders_checkbox">Turn reminders</string>
+    <string name="turn_reminders_checkbox">use turn reminders</string>
 
     <string name="calendar_permission_text">HatchTrack needs this permission to read and write the calendar which it uses to notify you about hatch events.
         \n\HatchTrack does not transmit or save any of your personal calendar information. It only uses the calendar to remind you about your hatches.

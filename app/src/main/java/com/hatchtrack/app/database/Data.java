@@ -498,4 +498,18 @@ public class Data {
         cv.put(HatchTable.LAST_MODIFIED, System.currentTimeMillis());
         return(context.getContentResolver().update(HatchtrackProvider.HATCH_URI, cv, HatchTable.ID + " = " + hatchId, null));
     }
+
+    /**
+     *
+     * @param context app context
+     * @param hatchId
+     * @param value number of eggs
+     * @return number of hatches updated. should be 1 if the hatch exists, else 0
+     */
+    public static int setEggCount(Context context, long hatchId, int value){
+        ContentValues cv = new ContentValues();
+        cv.put(HatchTable.EGG_COUNT, value);
+        cv.put(HatchTable.LAST_MODIFIED, System.currentTimeMillis());
+        return(context.getContentResolver().update(HatchtrackProvider.HATCH_URI, cv, HatchTable.ID + " = " + hatchId, null));
+    }
 }
